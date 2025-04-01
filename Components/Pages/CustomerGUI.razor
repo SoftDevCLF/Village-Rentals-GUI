@@ -1,0 +1,39 @@
+﻿@page "/customergui"
+@inject NavigationManager Navigation
+
+<h1>Customer Management</h1>
+<hr>
+<p>Welcome to the Customer Management Page</p>
+<label>Please select an option</label>
+
+<select @bind="option">
+	<option value="1">Add New Customer</option>
+	<option value="2">Update Customer</option>
+</select>
+
+<div>
+	<button @onclick="DisplayCustomerMenu">Select</button>
+</div>
+
+
+
+@code {
+
+	int option;
+
+    public void DisplayCustomerMenu()
+    {
+        switch (option)
+        {
+            case 1:
+                Navigation.NavigateTo("/addcustomer");
+                break;
+            case 2:
+                Navigation.NavigateTo("/updatecustomer");
+                break;
+            default:
+                break;
+        }
+    }
+
+}

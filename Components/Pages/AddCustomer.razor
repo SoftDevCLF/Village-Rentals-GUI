@@ -1,0 +1,90 @@
+﻿@page "/addcustomer"
+@using VillageRentalsGUI.Data
+@inject NavigationManager Navigation
+
+<h3>Add New Customer</h3>
+
+<form @onsubmit="AddNewCustomer">
+    <div>
+        <label>First Name</label>
+        <input @bind="firstName" type="text" />
+    </div>
+
+    <div>
+        <label>Last Name</label>
+        <input @bind="lastName" type="text" />
+    </div>
+
+    <div>
+        <label>Phone Number</label>
+        <input @bind="phoneNumber" type="tel" />
+    </div>
+
+    <div>
+        <label>Email</label>
+        <input @bind="email" type="email" />
+    </div>
+
+    <div>
+        <label>Discount</label>
+        <input @bind="discount" type="number" />
+    </div>
+
+    <div>
+        <label>Banned</label>
+        <select @bind="bannedString">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+        </select>
+    </div>
+
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
+
+@if (newCustomer)
+{
+        <h4>Customer Added:</h4>
+        <pre>@customer?.ToString()</pre> <!-- Display the added customer details -->
+}
+
+@if (Customer.AllCustomers.Count > 0)
+{
+        <h4>All Customers:</h4>
+        <ul>
+        @foreach (var c in Customer.AllCustomers)
+        {
+                    <li>@c.ToString()</li>
+        }
+        </ul>
+}
+
+@code {
+    int customerID;
+    string firstName, lastName, phoneNumber, email;
+    double discount;
+    string bannedString;
+    bool newCustomer = false;
+    Customer customer = null; // Initialize customer to null
+
+    public void AddNewCustomer()
+    {
+        if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(email))
+        {
+            Console.WriteLine("Error: All fields are required!");
+            return;
+        }
+
+        customerID = Customer.AllCustomers.Count + 1;
+
+        bool banned = bannedString == "true";
+
+        // The constructor already adds the customer to AllCustomers
+        customer = new Customer(customerID, lastName, firstName, email, phoneNumber, banned, discount);
+
+        newCustomer = true;
+
+        // No need to add it again here
+    }
+}

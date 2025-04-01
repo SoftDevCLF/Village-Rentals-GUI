@@ -1,0 +1,64 @@
+﻿@page "/rentalsgui"
+@using Data
+
+@*@<h3>Rentals</h3>
+
+<div @bind="option">
+ 
+
+</div>
+
+<div>
+    <button @onclick="DisplayCustomerMenu">Select</button>
+</div> *@
+
+@code {
+
+    public static List<Rental> AllRentals { get; } = new List<Rental>();
+    //int option;
+
+    /*public void DispayRentalsMenu()
+    {
+        switch (option)
+        {
+            case 1:
+                AddRental(int rentalID, Customer customer, List < Equipment > equipmentList, DateTime rentalDate, DateTime returnDate);
+                break;
+            case 2:
+                Navigation.NavigateTo("/updatecustomer");
+                break;
+            default:
+                break;
+        }
+    }*/
+
+    // Add a new rental
+    public static void AddRental(int rentalID, Customer customer, List<Equipment> equipmentList, DateTime rentalDate, DateTime returnDate)
+    {
+        Rental newRental = new Rental(rentalID, customer, equipmentList, rentalDate, returnDate);
+        AllRentals.Add(newRental);
+    }
+
+    // Remove an existing rental
+    public static void RemoveRental(int rentalID)
+    {
+        var rental = AllRentals.FirstOrDefault(r => r.RentalID == rentalID);
+        if (rental != null)
+        {
+            AllRentals.Remove(rental);
+        }
+    }
+
+    // Update an existing rental
+    public static void UpdateRental(int rentalID, List<Equipment> updatedEquipmentList, DateTime updatedReturnDate)
+    {
+        var rental = AllRentals.FirstOrDefault(r => r.RentalID == rentalID);
+        if (rental != null)
+        {
+            rental.EquipmentList = updatedEquipmentList;
+            rental.ReturnDate = updatedReturnDate;
+            rental.TotalCost = rental.CalculateTotalCost(); // Recalculate the total cost
+        }
+    }
+
+}
