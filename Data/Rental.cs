@@ -29,22 +29,18 @@ namespace VillageRentalsGUI.Data
         public double TotalCost { get => _totalCost; set => _totalCost = value; }
         public bool IsReturned { get => _isReturned; set => _isReturned = value; }
 
-        public Rental(int rentalID, Customer customer, List<Equipment> equipmentList, DateTime rentalDate, DateTime returnDate)
+        public Rental(int rentalID, DateTime currentDate, Customer customer, List<Equipment> equipmentList, DateTime rentalDate, DateTime returnDate, bool isReturned = false)
         {
-            _rentalID = rentalID;
+            RentalID = rentalID;
+            CurrentDate = currentDate;
             Customer = customer;
             EquipmentList = equipmentList;
-            _rentalDate = rentalDate;
-            _returnDate = returnDate;
-            TotalCost = CalculateTotalCost();
-            _isReturned = false;
-
-
+            RentalDate = rentalDate;
+            ReturnDate = returnDate;
+            IsReturned = isReturned;
 
             customer.Rentals.Add(this);
-
-
-
+            AllRentals.Add(this);
         }
 
         public double CalculateTotalCost()
@@ -76,7 +72,7 @@ namespace VillageRentalsGUI.Data
             foreach (var equipment in EquipmentList)
             {
                 double itemCost = equipment.DailyRentalCost * rentalDays;
-                rentalInfo += $"Equipment ID: {equipment.EquipmentID}, Name: {equipment.EquipmentName}, Dayly rental cost: ${equipment.DailyRentalCost:F2}, Cost for {rentalDays} days: ${itemCost:F2}\n";
+                rentalInfo += $"Equipment ID: {equipment.EquipmentID}, Name: {equipment.EquipmentName}, Daily rental cost: ${equipment.DailyRentalCost:F2}, Cost for {rentalDays} days: ${itemCost:F2}\n";
             }
 
             if (Customer.Discount > 0)

@@ -33,9 +33,9 @@
     }*/
 
     // Add a new rental
-    public static void AddRental(int rentalID, Customer customer, List<Equipment> equipmentList, DateTime rentalDate, DateTime returnDate)
+    public static void AddRental(int rentalID, DateTime currentDate, Customer customer, List<Equipment> equipmentList, DateTime rentalDate, DateTime returnDate, bool isReturned)
     {
-        Rental newRental = new Rental(rentalID, customer, equipmentList, rentalDate, returnDate);
+        Rental newRental = new Rental(rentalID, currentDate, customer, equipmentList, rentalDate, returnDate, isReturned);
         AllRentals.Add(newRental);
     }
 
