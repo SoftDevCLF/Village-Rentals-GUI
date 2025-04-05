@@ -3,51 +3,109 @@
 @inject NavigationManager Navigation
 
 <h3>Add New Customer</h3>
+<hr />
+<div class="container">
+    <div class="row">
+        <!-- Form Section -->
+        <div class="col">
+            Enter customer details
+            <p class="text-danger">* <i class="text-dark">Required</i></p>
 
-<form @onsubmit="AddNewCustomer">
-    <div>
-        <label>First Name</label>
-        <input @bind="firstName" type="text" />
+            <!-- Search customer by ID or name -->
+
+            <form @onsubmit="AddNewCustomer">
+				<div class="form-group row mb-3">
+					<label class="col-sm-3 col-form-label me-5">First Name</label>
+					<div class="col-sm-7">
+                        <input @bind="firstName" class="form-control ms-5" />
+                    </div>
+				</div>
+
+				<div class="form-group row mb-3">
+					<label class="col-sm-3 col-form-label me-5">Last Name<i class="text-danger">*</i></label>
+					<div class="col-sm-7">
+						<input @bind="lastName" class="form-control ms-5" />
+					</div>
+				</div>
+
+				<div class="form-group row mb-3">
+					<label class="col-sm-3 col-form-label me-5">Phone Number</label>
+					<div class="col-sm-7">
+                        <input @bind="phoneNumber" type="tel" class="form-control ms-5" />
+					</div>
+				</div>
+
+				<div class="form-group row mb-3">
+					<label class="col-sm-3 col-form-label me-5">Email<i class="text-danger">*</i></label>
+					<div class="col-sm-7">
+                        <input @bind="email" type="email" class="form-control ms-5" />
+					</div>
+				</div>
+
+				<div class="form-group row mb-3">
+					<label class="col-sm-3 col-form-label me-5">Discount</label>
+					<div class="col-sm-7">
+                        <input type="number" @bind="discount" class="form-control ms-5" />
+					</div>
+				</div>
+
+				<div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label me-5">Customer Status</label>
+                        <div class="col-sm-4">
+                            <select class="form-select ms-5" @bind="bannedString">
+                                <option value="false">Active</option>
+                                <option value="true">Banned</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button class="btn btn-primary mb-3 me-3" type="submit">Add Customer</button>
+                    </div>
+			</form>
+
+        </div>
+
+			<!-- Updated Customer Info Section -->
+        <div class="col">
+            @if (newCustomer)
+            {
+                <table class="table">
+                    <thead>
+                        <tr class="mb-5">
+                            <th class="p-3 bg-success bg-opacity-50 rounded-1 text-white fs-4 ">Customer Added!</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border rounded-3 mt-3 py-2 px-3">First Name: @customer?.FirstName</td>
+                        </tr>
+                        <tr>
+                            <td class="border rounded-3 py-2 px-3">Last Name: @customer.LastName</td>
+                        </tr>
+                        <tr>
+                            <td class="border rounded-3 py-2 px-3">Phone Number: @customer.PhoneNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="border rounded-3 py-2 px-3">Email: @customer.Email</td>
+                        </tr>
+                        <tr>
+                            <td class="border rounded-3 py-2 px-3">Discount: @customer.Discount%</td>
+                        </tr>
+                        <tr>
+                            <td class="border rounded-3 py-2 px-3"> Customer Status: @(customer.IsBanned ? "Banned" : "Active")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+        </div>
+
     </div>
+</div>
 
-    <div>
-        <label>Last Name</label>
-        <input @bind="lastName" type="text" />
-    </div>
 
-    <div>
-        <label>Phone Number</label>
-        <input @bind="phoneNumber" type="tel" />
-    </div>
 
-    <div>
-        <label>Email</label>
-        <input @bind="email" type="email" />
-    </div>
 
-    <div>
-        <label>Discount</label>
-        <input @bind="discount" type="number" />
-    </div>
-
-    <div>
-        <label>Banned</label>
-        <select @bind="bannedString">
-            <option value="false">No</option>
-            <option value="true">Yes</option>
-        </select>
-    </div>
-
-    <div>
-        <button type="submit">Submit</button>
-    </div>
-</form>
-
-@if (newCustomer)
-{
-        <h4>Customer Added:</h4>
-        <pre>@customer?.ToString()</pre> <!-- Display the added customer details -->
-}
 
 @if (Customer.AllCustomers.Count > 0)
 {
@@ -55,13 +113,13 @@
         <ul>
         @foreach (var c in Customer.AllCustomers)
         {
-                    <li>@c.ToString()</li>
+            <li>@c.ToString()</li>
         }
         </ul>
 }
 
 @code {
-    int customerID;
+    int? customerID;
     string firstName, lastName, phoneNumber, email;
     double discount;
     string bannedString;

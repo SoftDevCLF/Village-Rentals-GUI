@@ -1,39 +1,125 @@
 ﻿@page "/customergui"
+@using Data
 @inject NavigationManager Navigation
 
 <h1>Customer Management</h1>
 <hr>
 <p>Welcome to the Customer Management Page</p>
-<label>Please select an option</label>
-
-<select @bind="option">
-	<option value="1">Add New Customer</option>
-	<option value="2">Update Customer</option>
-</select>
-
 <div>
-	<button @onclick="DisplayCustomerMenu">Select</button>
+    <button @onclick="GoToAllCustomersPage" class="btn btn-secondary">See All Customers</button>
+    <button @onclick="GoToAddNewCustomerPage" class="btn btn-primary">Add New Customer</button>
+</div>
+
+<br />
+<div class="input-group mb-3">
+    @if (searchCriteria == "ID")
+    {
+        <input class="border rounded-1 w-50 ps-3" placeholder="ID" @bind="customerID" />
+        <button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
+    }
+    else if (searchCriteria == "LastName")
+    {
+         <input class="border rounded-1 w-50 ps-3" placeholder="Last Name" @bind="customerLastName" />
+         <button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
+    }
 </div>
 
 
+<div class="container">
+    <div class="row">
+        <div class="col-5 col-md-2">
+            <p>Search by</p>
+            <div>
+                <input type="radio" name="search" checked="@IsIDSelected" @onchange="OnSelectID" />
+                <label>Customer ID</label>
+            </div>
+            <div>
+                <input type="radio" name="search" checked="@IsLastNameSelected" @onchange="OnSelectLastName" />
+                <label>Last Name</label>
+            </div>
+
+
+        </div>
+        <div class="col-md-10 border-start">
+            <p>Search Results</p>
+            <table class="table">
+                <thead>
+                    <tr >
+                        <th class="text-primary border-secondary">ID</th>
+                        <th class="text-primary border-secondary w-25">Customer Name</th>
+                        <th class="text-primary border-secondary">Status</th>
+                        <th class="text-primary border-secondary">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (matchingCustomers.Any())
+                    {
+                        @foreach (var customer in matchingCustomers)
+                        {
+                            <tr>
+                                <td>@customer.CustomerID</td>
+                                <td>@customer.FirstName @customer.LastName</td>
+                                <td>@(customer.IsBanned? "Banned" : "Active")</td>
+                                <td>
+                                    <button class="btn btn-info" @onclick="() => GoToUpdateCustomerPage(customer.CustomerID)">Update</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 @code {
+    int? customerID;
+    string customerLastName;
+    string searchCriteria = "ID"; // Default selection
 
-	int option;
+    List<Customer> matchingCustomers = new List<Customer>();
 
-    public void DisplayCustomerMenu()
+    private bool IsIDSelected => searchCriteria == "ID";
+    private bool IsLastNameSelected => searchCriteria == "LastName";
+
+    private void OnSelectID(ChangeEventArgs e) => searchCriteria = "ID";
+    private void OnSelectLastName(ChangeEventArgs e) => searchCriteria = "LastName";
+
+    private void SearchCustomer()
     {
-        switch (option)
+        matchingCustomers.Clear();
+
+        if (searchCriteria == "ID" && customerID != 0)
         {
-            case 1:
-                Navigation.NavigateTo("/addcustomer");
-                break;
-            case 2:
-                Navigation.NavigateTo("/updatecustomer");
-                break;
-            default:
-                break;
+            matchingCustomers = Customer.AllCustomers
+                .Where(c => c.CustomerID == customerID)
+                .ToList();
+        }
+        else if (searchCriteria == "LastName" && !string.IsNullOrWhiteSpace(customerLastName))
+        {
+            matchingCustomers = Customer.AllCustomers
+                .Where(c => c.LastName.Contains(customerLastName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        else
+        {
+            Console.WriteLine("Please enter valid search input.");
         }
     }
 
+    private void GoToAddNewCustomerPage()
+    {
+        Navigation.NavigateTo("/addcustomer");
+    }
+
+    private void GoToUpdateCustomerPage(int? customerID)
+    {
+        Navigation.NavigateTo($"/updatecustomer/{customerID}");
+    }
+
+	private void GoToAllCustomersPage()
+	{
+		Navigation.NavigateTo("/allcustomers");
+	}
 }

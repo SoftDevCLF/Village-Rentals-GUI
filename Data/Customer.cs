@@ -10,7 +10,7 @@ namespace VillageRentalsGUI.Data
     {
         public static List<Customer> AllCustomers { get; set; } = new List<Customer>();
 
-        public int CustomerID { get; set; }
+        public int? CustomerID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
@@ -19,7 +19,7 @@ namespace VillageRentalsGUI.Data
         public double Discount { get; set; }
         public List<Rental> Rentals { get; set; } = new List<Rental>();
 
-        public Customer(int customerID, string lastName, string firstName, string email, string phoneNumber, bool isBanned, double discount)
+        public Customer(int? customerID, string lastName, string firstName, string email, string phoneNumber, bool isBanned, double discount)
         {
             CustomerID = customerID;
             LastName = lastName;

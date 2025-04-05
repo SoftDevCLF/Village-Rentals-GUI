@@ -1,160 +1,149 @@
-﻿@page "/updatecustomer"
+﻿@page "/updatecustomer/{CustomerID:int}"
 @using Data
 @using System.Diagnostics
 
-<h1>Update Customer</h1>
+<h1 class="mt-3">Update Customer</h1>
+<hr/>
+<div class="container">
+    <div class="row">
+        <!-- Form Section -->
+        <div class="col">
+            Enter customer details
+            <p class="text-danger">* <i class="text-dark">Required</i></p> 
 
 <!-- Search customer by ID or name -->
 
-<div>
-    <input type="checkbox" @bind="searchByID" />
-    <label>Search by Customer ID</label>
-</div>
 
-<div>
-    <input type="checkbox" @bind="searchByLastName" />
-    <label>Search by Customer Last Name</label>
-</div>
+            @if (selectedCustomer != null)
+            {
+                <form @onsubmit="SaveChanges">
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label me-5">First Name</label>
+                        <div class="col-sm-7">
+                            <input @bind="selectedCustomer.FirstName" class="form-control ms-5" />
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label me-5">Last Name<i class="text-danger">*</i></label>
+                        <div class="col-sm-7">
+                            <input @bind="selectedCustomer.LastName" class="form-control ms-5" />
+                        </div>
+                    </div>
 
-@if (searchByID)
-{
-        <p>Search by ID</p>
-        <input @bind="customerID" />
-        <button @onclick="SearchCustomer">Search</button>
-}
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label me-5">Phone Number</label>
+                        <div class="col-sm-7">
+                            <input @bind="selectedCustomer.PhoneNumber" class="form-control ms-5" />
+                        </div>
+                    </div>
 
-else if (searchByLastName)
-{
-        <p>Search by Last Name</p>
-        <input @bind="customerLastName" />
-        <button @onclick="SearchCustomer">Search</button>
-}
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label me-5">Email<i class="text-danger">*</i></label>
+                        <div class="col-sm-7">
+                            <input @bind="selectedCustomer.Email" class="form-control ms-5" />
+                        </div>
+                    </div>
 
-@if (matchingCustomers.Any())
-{
-        <h3>Matching Customers</h3>
-        <ul>
-        @foreach (var customer in matchingCustomers)
-        {
-                    <li>
-                        <p>@customer.FirstName @customer.LastName</p>
-                        <button @onclick="() => SelectCustomer(customer)">Select</button>
-                    </li>
-        }
-        </ul>
-}
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label me-5">Discount</label>
+                        <div class="col-sm-7">
+                            <input type="number" @bind="selectedCustomer.Discount" class="form-control ms-5" />
+                        </div>
+                    </div>
 
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label me-5">Customer Status</label>
+                        <div class="col-sm-4">
+                            <select class="form-select ms-5" @bind="bannedString">
+                                <option value="false">Active</option>
+                                <option value="true">Banned</option>
+                            </select>
+                        </div>
+                    </div>
 
-@if (selectedCustomer != null)
-{
-        <h3>Modify Customer</h3>
-        <form @onsubmit="SaveChanges">
-            <div>
-                <label>First Name</label>
-                <input @bind="selectedCustomer.FirstName" />
-            </div>
+                    <div>
+                        <button class="btn btn-primary mb-3 me-3" type="submit">Save Changes</button>
+                        <button class="btn btn-danger mb-3" type="button" @onclick="CancelEdit">Cancel</button>
+                    </div>
+                </form>
+            }
+        </div>
+    
 
-            <div>
-                <label>Last Name</label>
-                <input @bind="selectedCustomer.LastName" />
-            </div>
-
-            <div>
-                <label>Phone Number</label>
-                <input @bind="selectedCustomer.PhoneNumber" />
-            </div>
-
-            <div>
-                <label>Email</label>
-                <input @bind="selectedCustomer.Email" />
-            </div>
-
-            <div>
-                <label>Discount</label>
-                <input type="number" @bind="selectedCustomer.Discount" />
-            </div>
-
-        <div>
-            <label>Banned</label>
-            <select @bind="bannedString">
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-            </select>
+        <!-- Updated Customer Info Section -->
+        <div class="col">
+            @if (updatedCustomer != null)
+            {
+                <table class="table">
+					<thead>
+                        <tr class="mb-5">
+                            <th class="p-3 bg-success bg-opacity-50 rounded-1 text-white fs-4 ">Customer Updated!</th>
+                        </tr>
+					</thead>
+                    <tbody>
+                        <tr>
+							<td class="border rounded-3 mt-3 py-2 px-3">First Name: @updatedCustomer.FirstName</td>
+                        </tr>
+                        <tr>
+                            <td class="border rounded-3 py-2 px-3">Last Name: @updatedCustomer.LastName</td>
+                        </tr>
+						<tr>
+                            <td class="border rounded-3 py-2 px-3">Phone Number: @updatedCustomer.PhoneNumber</td>
+                        </tr>
+						<tr>
+                            <td class="border rounded-3 py-2 px-3">Email: @updatedCustomer.Email</td>
+                        </tr>
+						<tr>
+                            <td class="border rounded-3 py-2 px-3">Discount: @updatedCustomer.Discount%</td>
+                        </tr>
+						<tr>
+                            <td class="border rounded-3 py-2 px-3"> Customer Status: @(updatedCustomer.IsBanned ? "Banned" : "Active")</td>
+                        </tr>
+                    </tbody>
+				</table>
+            }
         </div>
 
-            <div>
-                <button type="submit">Save Changes</button>
-                <button type="button" @onclick="CancelEdit">Cancel</button>
-            </div>
-        </form>
-}
-
-@if (updatedCustomer != null && selectedCustomer == null)
-{
-        <h3>Updated Customer</h3>
-        <p>First Name: @updatedCustomer.FirstName</p>
-        <p>Last Name: @updatedCustomer.LastName</p>
-        <p>Phone Number: @updatedCustomer.PhoneNumber</p>
-        <p>Email: @updatedCustomer.Email</p>
-        <p>Discount: @updatedCustomer.Discount%</p>
-        <p>Status: @(updatedCustomer.IsBanned ? "Banned" : "Active")</p>
-}
+    </div>
+</div>
 
 @code {
-    int customerID;
-    string customerLastName;
-    bool searchByID;
-    bool searchByLastName;
+    [Parameter]
+    public int CustomerID { get; set; }
 
-    List<Customer> matchingCustomers = new List<Customer>();
+    Customer originalCustomer;
     Customer selectedCustomer;
     Customer updatedCustomer;
     string bannedString;
 
-    public void SearchCustomer()
+    protected override void OnInitialized()
     {
-        matchingCustomers.Clear(); // Clear previous search results
-
-        if (searchByID && customerID != 0)
+        var customer = Customer.AllCustomers.FirstOrDefault(c => c.CustomerID == CustomerID);
+        if (customer != null)
         {
-            // Search by ID and add all matches (just in case you want to allow the same ID for different customers in the future)
-            matchingCustomers = Customer.AllCustomers
-                .Where(c => c.CustomerID == customerID)
-                .ToList();
-        }
-        else if (searchByLastName && !string.IsNullOrEmpty(customerLastName))
-        {
-            // Search by Last Name and add all matches
-            matchingCustomers = Customer.AllCustomers
-                .Where(c => c.LastName.Contains(customerLastName, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-        }
-        else
-        {
-            Console.WriteLine("Please select a valid search option.");
+            SelectCustomer(customer);
+            originalCustomer = customer;
         }
     }
 
     public void SelectCustomer(Customer customer)
     {
-        selectedCustomer = customer; // Set the selected customer for updating
-        bannedString = selectedCustomer.IsBanned ? "true" : "false";
-        Debug.WriteLine($"Selected Customer IsBanned: {selectedCustomer.IsBanned}");
+        selectedCustomer = customer;
+        bannedString = customer.IsBanned ? "true" : "false";
     }
 
     public void SaveChanges()
     {
-        Debug.WriteLine($"Before Save - IsBanned: {selectedCustomer.IsBanned}");
         if (selectedCustomer != null)
         {
             bool banned = bannedString == "true";
-            // Find the existing customer by ID
+
             var existingCustomer = Customer.AllCustomers
                 .FirstOrDefault(c => c.CustomerID == selectedCustomer.CustomerID);
 
             if (existingCustomer != null)
             {
-                // Update the customer information in the list
                 existingCustomer.FirstName = selectedCustomer.FirstName;
                 existingCustomer.LastName = selectedCustomer.LastName;
                 existingCustomer.PhoneNumber = selectedCustomer.PhoneNumber;
@@ -162,23 +151,19 @@ else if (searchByLastName)
                 existingCustomer.Discount = selectedCustomer.Discount;
                 existingCustomer.IsBanned = banned;
 
-                // Store the updated customer for display
                 updatedCustomer = existingCustomer;
-                Debug.WriteLine($"After Save - IsBanned: {existingCustomer.IsBanned}");
-
-                // Clear selectedCustomer after saving
-                selectedCustomer = null;
-                bannedString = null;
+                //selectedCustomer = null;
+                //bannedString = null;
             }
         }
     }
 
     public void CancelEdit()
     {
-        selectedCustomer = null;
-        bannedString = null;// Hide form without saving
+        if (originalCustomer != null)
+        {
+            selectedCustomer = originalCustomer; // Revert the changes
+            bannedString = selectedCustomer.IsBanned ? "true" : "false"; // Reset banned status dropdown
+        }
     }
-
-
-  
 }
