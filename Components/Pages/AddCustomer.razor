@@ -14,59 +14,59 @@
             <!-- Search customer by ID or name -->
 
             <form @onsubmit="AddNewCustomer">
-				<div class="form-group row mb-3">
-					<label class="col-sm-3 col-form-label me-5">First Name</label>
-					<div class="col-sm-7">
+                <div class="form-group row mb-3">
+                    <label class="col-sm-3 col-form-label me-5">First Name</label>
+                    <div class="col-sm-7">
                         <input @bind="firstName" class="form-control ms-5" />
                     </div>
-				</div>
+                </div>
 
-				<div class="form-group row mb-3">
-					<label class="col-sm-3 col-form-label me-5">Last Name<i class="text-danger">*</i></label>
-					<div class="col-sm-7">
-						<input @bind="lastName" class="form-control ms-5" />
-					</div>
-				</div>
+                <div class="form-group row mb-3">
+                    <label class="col-sm-3 col-form-label me-5">Last Name<i class="text-danger">*</i></label>
+                    <div class="col-sm-7">
+                        <input @bind="lastName" class="form-control ms-5" />
+                    </div>
+                </div>
 
-				<div class="form-group row mb-3">
-					<label class="col-sm-3 col-form-label me-5">Phone Number</label>
-					<div class="col-sm-7">
-                        <input @bind="phoneNumber" type="tel" class="form-control ms-5" />
-					</div>
-				</div>
+                <div class="form-group row mb-3">
+                    <label class="col-sm-3 col-form-label me-5">Phone Number</label>
+                    <div class="col-sm-7">
+                        <input @bind="FormattedPhoneNumber" type="tel" class="form-control ms-5" />
+                    </div>
+                </div>
 
-				<div class="form-group row mb-3">
-					<label class="col-sm-3 col-form-label me-5">Email<i class="text-danger">*</i></label>
-					<div class="col-sm-7">
+                <div class="form-group row mb-3">
+                    <label class="col-sm-3 col-form-label me-5">Email<i class="text-danger">*</i></label>
+                    <div class="col-sm-7">
                         <input @bind="email" type="email" class="form-control ms-5" />
-					</div>
-				</div>
+                    </div>
+                </div>
 
-				<div class="form-group row mb-3">
-					<label class="col-sm-3 col-form-label me-5">Discount</label>
-					<div class="col-sm-7">
+                <div class="form-group row mb-3">
+                    <label class="col-sm-3 col-form-label me-5">Discount</label>
+                    <div class="col-sm-7">
                         <input type="number" @bind="discount" class="form-control ms-5" />
-					</div>
-				</div>
-
-				<div class="form-group row mb-3">
-                        <label class="col-sm-3 col-form-label me-5">Customer Status</label>
-                        <div class="col-sm-4">
-                            <select class="form-select ms-5" @bind="bannedString">
-                                <option value="false">Active</option>
-                                <option value="true">Banned</option>
-                            </select>
-                        </div>
                     </div>
+                </div>
 
-                    <div>
-                        <button class="btn btn-primary mb-3 me-3" type="submit">Add Customer</button>
+                <div class="form-group row mb-3">
+                    <label class="col-sm-3 col-form-label me-5">Customer Status</label>
+                    <div class="col-sm-4">
+                        <select class="form-select ms-5" @bind="bannedString">
+                            <option value="false">Active</option>
+                            <option value="true">Banned</option>
+                        </select>
                     </div>
-			</form>
+                </div>
+
+                <div>
+                    <button class="btn btn-primary mb-3 me-3" type="submit">Add Customer</button>
+                </div>
+            </form>
 
         </div>
 
-			<!-- Updated Customer Info Section -->
+        <!-- Updated Customer Info Section -->
         <div class="col">
             @if (newCustomer)
             {
@@ -97,6 +97,10 @@
                         </tr>
                     </tbody>
                 </table>
+
+				<div>
+                    <button class="btn btn-primary mt-6" @onclick="GoToCustomerPage">Go Back to Customer Management</button>
+				</div>
             }
         </div>
 
@@ -109,13 +113,13 @@
 
 @if (Customer.AllCustomers.Count > 0)
 {
-        <h4>All Customers:</h4>
-        <ul>
+    <h4>All Customers:</h4>
+    <ul>
         @foreach (var c in Customer.AllCustomers)
         {
             <li>@c.ToString()</li>
         }
-        </ul>
+    </ul>
 }
 
 @code {
@@ -123,6 +127,7 @@
     string firstName, lastName, phoneNumber, email;
     double discount;
     string bannedString;
+    
     bool newCustomer = false;
     Customer customer = null; // Initialize customer to null
 
@@ -134,7 +139,7 @@
             return;
         }
 
-        customerID = Customer.AllCustomers.Count + 1;
+        customerID = Customer.AllCustomers.Max(c => c.CustomerID) + 1;
 
         bool banned = bannedString == "true";
 
@@ -144,5 +149,41 @@
         newCustomer = true;
 
         // No need to add it again here
+    }
+
+    public string FormattedPhoneNumber
+    {
+        get => phoneNumber;
+        set
+        {
+            // Remove non-digit characters
+            var digits = new string(value.Where(char.IsDigit).ToArray());
+
+            // Limit to 10 digits
+            if (digits.Length > 10)
+                digits = digits.Substring(0, 10);
+
+            // Format phone number
+            if (digits.Length >= 10)
+            {
+                phoneNumber = $"({digits[..3]}){digits[3..6]}-{digits[6..]}";
+            }
+            else if (digits.Length >= 6)
+            {
+                phoneNumber = $"({digits[..3]}){digits[3..6]}-{digits[6..]}";
+            }
+            else if (digits.Length >= 3)
+            {
+                phoneNumber = $"({digits[..3]}){digits[3..]}";
+            }
+            else
+            {
+                phoneNumber = digits;
+            }
+        }
+    }
+    private void GoToCustomerPage()
+    {
+        Navigation.NavigateTo("/customergui");
     }
 }

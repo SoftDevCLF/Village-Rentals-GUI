@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VillageRentalsGUI.Components.Pages;
 
 namespace VillageRentalsGUI.Data
 {
     public class Customer
     {
-        public static List<Customer> AllCustomers { get; set; } = new List<Customer>();
-
+        public static List<Customer> AllCustomers = new List<Customer>();
+        
         public int? CustomerID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -19,19 +20,29 @@ namespace VillageRentalsGUI.Data
         public double Discount { get; set; }
         public List<Rental> Rentals { get; set; } = new List<Rental>();
 
-        public Customer(int? customerID, string lastName, string firstName, string email, string phoneNumber, bool isBanned, double discount)
+        static Customer()
+        {
+            new Customer(1001, "Doe", "John", "jd@sample.net", "(555)555-1212");
+            new Customer(1002, "Smith", "Jane", "js@live.com", "(555)555-3434");
+            new Customer(1003, "Lee", "Michael", "ml@sample.net", "(555)555-5656");
+        }
+        public Customer(int? customerID, string lastName, string firstName, string email, string phoneNumber, bool isBanned=false, double discount=0, bool autoAdd = true)
         {
             CustomerID = customerID;
             LastName = lastName;
             FirstName = firstName;
             PhoneNumber = phoneNumber;
             Email = email;
-            IsBanned = isBanned;  // No reset of value here
-            Discount = discount;  // No reset of value here
+            IsBanned = isBanned;  
+            Discount = discount;  
 
-            AllCustomers.Add(this);  // Adds customer to the AllCustomers list
+            if (autoAdd)
+                AllCustomers.Add(this);  // Adds customer to the AllCustomers list
         }
 
+        
+        
+        
         public override string ToString() 
         {
             string status = "";
@@ -53,6 +64,8 @@ namespace VillageRentalsGUI.Data
                    $"Status: {status}\n" +
                    $"Discount: {Discount}%";
         }
+
+        
 
     }
 }

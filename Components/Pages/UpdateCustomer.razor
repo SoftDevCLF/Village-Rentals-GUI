@@ -1,5 +1,6 @@
 ﻿@page "/updatecustomer/{CustomerID:int}"
 @using Data
+@inject NavigationManager Navigation
 @using System.Diagnostics
 
 <h1 class="mt-3">Update Customer</h1>
@@ -102,6 +103,10 @@
                         </tr>
                     </tbody>
 				</table>
+
+                <div>
+                    <button class="btn btn-primary mt-6" @onclick="GoToCustomerPage">Go Back to Customer Management</button>
+                </div>
             }
         </div>
 
@@ -165,5 +170,10 @@
             selectedCustomer = originalCustomer; // Revert the changes
             bannedString = selectedCustomer.IsBanned ? "true" : "false"; // Reset banned status dropdown
         }
+    }
+
+    private void GoToCustomerPage()
+    {
+        Navigation.NavigateTo("/customergui");
     }
 }

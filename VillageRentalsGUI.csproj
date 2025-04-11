@@ -64,4 +64,18 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Update="wwwroot\clients.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiAsset Update="Resources\Raw\clients.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </MauiAsset>
+    </ItemGroup>
+
 </Project>

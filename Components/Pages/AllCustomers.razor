@@ -1,5 +1,6 @@
 ﻿@page "/allcustomers"
 @using Data
+@inject NavigationManager Navigation
 
 <h1>All Customers</h1>
 <hr/>
@@ -36,6 +37,15 @@
         
     </table>
 }
-@code {
 
+<div>
+	<button class="btn btn-primary mt-6" @onclick="GoToCustomerPage">Go Back to Customer Management</button>
+</div>
+
+
+@code {
+	private void GoToCustomerPage()
+	{
+		Navigation.NavigateTo("/customergui");
+	}
 }

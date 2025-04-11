@@ -11,19 +11,25 @@
 </div>
 
 <br />
-<div class="input-group mb-3">
+
+<form @onsubmit="SearchCustomer">
+
     @if (searchCriteria == "ID")
     {
-        <input class="border rounded-1 w-50 ps-3" placeholder="ID" @bind="customerID" />
-        <button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
+        <div class="input-group mb-3">
+            <input class="border rounded-1 w-50 ps-3" placeholder="ID" @bind="customerID" />
+            <button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
+		</div>
     }
     else if (searchCriteria == "LastName")
     {
-         <input class="border rounded-1 w-50 ps-3" placeholder="Last Name" @bind="customerLastName" />
-         <button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
+        <div class="input-group mb-3">
+            <input class="border rounded-1 w-50 ps-3" placeholder="Last Name" @bind="customerLastName" />
+            <button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
+		</div>
     }
-</div>
 
+</form>
 
 <div class="container">
     <div class="row">
@@ -40,7 +46,7 @@
 
 
         </div>
-        <div class="col-md-10 border-start">
+        <div class="col-md-10 border-start align-middle">
             <p>Search Results</p>
             <table class="table">
                 <thead>
@@ -56,10 +62,10 @@
                     {
                         @foreach (var customer in matchingCustomers)
                         {
-                            <tr>
+                            <tr class ="align-middle">
                                 <td>@customer.CustomerID</td>
                                 <td>@customer.FirstName @customer.LastName</td>
-                                <td>@(customer.IsBanned? "Banned" : "Active")</td>
+                                <td>@(customer.IsBanned ? "Banned" : "Active")</td>
                                 <td>
                                     <button class="btn btn-info" @onclick="() => GoToUpdateCustomerPage(customer.CustomerID)">Update</button>
                                 </td>
