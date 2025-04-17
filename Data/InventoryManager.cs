@@ -6,42 +6,49 @@ using System.Threading.Tasks;
 
 namespace VillageRentalsGUI.Data
 {
-    public class InventoryManager : Equipment
+    // Handles logic related to managing equipment inventory
+    public class InventoryManager
     {
-
+        // Reference to the equipment being managed
         public Equipment Equipment { get; set; }
 
-        public InventoryManager(Equipment equipment): base(equipment.EquipmentID, equipment.Category, equipment.EquipmentName, equipment.EquipmentDescription, equipment.DailyRentalCost)
+        // Constructor to wrap an existing Equipment object
+        public InventoryManager(Equipment equipment)
         {
             Equipment = equipment;
-            AllEquipment.Add(this); // Add the new item to the inventory
         }
 
+        // Adds a new equipment item to the system
         public static void AddInventoryItem(int equipmentID, int categoryID, string categoryName, string equipmentName, string equipmentDescription, double dailyRentalCost)
         {
-            // Create new category with both ID and name
-            Category category = new Category(categoryID, categoryName);
+            // Try to find an existing category by ID
+            Category? category = Category.AllCategories.FirstOrDefault(c => c.CategoryID == categoryID);
 
-            // Create new equipment
+            // If category doesn't exist, create and add it
+            if (category == null)
+            {
+                category = new Category(categoryID, categoryName);
+                Category.AllCategories.Add(category);
+            }
+
+            // Create a new Equipment instance with the found or created category
             Equipment newEquipment = new Equipment(equipmentID, category, equipmentName, equipmentDescription, dailyRentalCost);
 
-            // Create a new inventory item for the equipment
+            // Wrap it in an InventoryManager if needed (not strictly necessary)
             new InventoryManager(newEquipment);
 
-            // Optionally, you can print confirmation
+            // Optional debug log
             Console.WriteLine($"New Inventory Item Added: {newEquipment.EquipmentName}");
         }
 
-        // Remove inventory item from the list (for example, if sold)
+        // Removes an equipment item from the system by ID
         public static void RemoveInventoryItem(int equipmentID)
         {
-            var inventoryItem = AllEquipment.FirstOrDefault(i => i.EquipmentID == equipmentID);
+            Equipment? inventoryItem = Equipment.AllEquipment.FirstOrDefault(i => i.EquipmentID == equipmentID);
             if (inventoryItem != null)
             {
-                AllEquipment.Remove(inventoryItem);
+                Equipment.AllEquipment.Remove(inventoryItem);
             }
         }
-
-        
     }
 }

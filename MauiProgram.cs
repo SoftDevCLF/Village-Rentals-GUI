@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using VillageRentalsGUI.Data;
 
 namespace VillageRentalsGUI;
 
@@ -21,6 +22,8 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
+		DataLoader.LoadAll();
+
+        return builder.Build();
 	}
 }
