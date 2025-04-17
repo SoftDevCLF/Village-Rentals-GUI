@@ -5,10 +5,12 @@
 <h3 class="mb-4">Add New Equipment</h3>
 <hr/>
 <div class="row">
+    <!-- Left column for form -->
     <div class="col-md-6">
         <p><strong>Enter New Equipment Details:</strong><br />
             <span class="text-danger">*</span> Required</p>
 
+        <!-- Equipment Name input -->
         <div class="mb-3 row">
             <label class="col-sm-4 col-form-label">Equipment Name <span class="text-danger">*</span></label>
             <div class="col-sm-8">
@@ -16,6 +18,7 @@
             </div>
         </div>
 
+        <!-- Daily Rate input -->
         <div class="mb-3 row">
             <label class="col-sm-4 col-form-label">Daily Rate</label>
             <div class="col-sm-8">
@@ -23,6 +26,7 @@
             </div>
         </div>
 
+        <!-- Description input -->
         <div class="mb-3 row">
             <label class="col-sm-4 col-form-label">Description</label>
             <div class="col-sm-8">
@@ -30,6 +34,7 @@
             </div>
         </div>
 
+        <!-- Dropdown to select a category -->
         <div class="mb-3 row">
             <label class="col-sm-4 col-form-label">Category <span class="text-danger">*</span></label>
             <div class="col-sm-8">
@@ -45,19 +50,23 @@
             </div>
         </div>
 
+        <!-- Conditional button block -->
         <div class="text-start">
             @if (!isSubmitted)
             {
+                    <!-- Button to submit the form -->
                     <button class="btn btn-primary" @onclick="SubmitEquipment">Add New Equipment</button>
             }
             else
             {
+                    <!-- Buttons to reset or go back after submission -->
                     <button class="btn btn-success me-2" @onclick="ResetForm">Add Another Equipment</button>
                     <button class="btn btn-secondary" @onclick="@(() => Nav.NavigateTo("/inventorygui"))">Go Back to Inventory</button>
             }
         </div>
     </div>
 
+    <!-- Right column to show summary if equipment was added -->
     @if (isSubmitted)
     {
             <div class="col-md-6">
@@ -77,27 +86,34 @@
 </div>
 
 @code {
+    // Form fields
     private string equipmentName = "";
     private double dailyRate;
     private string description = "";
     private string selectedCategory = "";
     private List<Category> categories = Category.AllCategories;
 
+    // State tracking
     private Equipment? addedEquipment;
     private bool isSubmitted = false;
 
+    // Handles the form submission
     private void SubmitEquipment()
     {
+        // Validation: ensure required fields are filled
         if (string.IsNullOrWhiteSpace(equipmentName) || string.IsNullOrWhiteSpace(selectedCategory))
             return;
 
+        // Parse category ID
         int categoryId = int.TryParse(selectedCategory, out int parsed) ? parsed : 0;
         Category? category = categories.FirstOrDefault(c => c.CategoryID == categoryId);
         if (category == null) return;
 
+        // Generate a new ID based on category grouping
         int countInCategory = Equipment.AllEquipment.Count(e => e.Category.CategoryID == category.CategoryID);
         int newId = category.CategoryID * 10 + (countInCategory + 1);
 
+        // Add the new item to the inventory
         InventoryManager.AddInventoryItem(
             newId,
             category.CategoryID,
@@ -107,12 +123,15 @@
             dailyRate
         );
 
+        // Save to JSON file
         DataLoader.SaveAll();
 
+        // Store for confirmation display
         addedEquipment = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == newId);
         isSubmitted = true;
     }
 
+    // Clears the form to allow adding another item
     private void ResetForm()
     {
         equipmentName = "";
@@ -123,4 +142,3 @@
         isSubmitted = false;
     }
 }
-
