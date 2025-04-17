@@ -26,7 +26,7 @@
 
 		</div>
 		<div class="col-md-8 border-start">
-			@if (searchType == "Date")
+			@*@if (searchType == "Date")
 			{
 				<form>
 					<div class="input-group mb-3">
@@ -34,7 +34,7 @@
 						<button class="btn btn-primary" @onclick="() => SearchByDate(date)">Search</button>
 					</div>
 				</form>
-			}
+			}*@
 			else if (searchType == "Customer ID")
 			{
 				<form>
@@ -50,7 +50,7 @@
 				<form>
 					<div class="input-group mb-3">
 						<input class="border rounded-1 w-50 ps-3" placeholder="Category Name" @bind="categoryName" />
-						<button class="btn btn-primary" @onclick="() => SearchByCategory(categoryName)">Search</button>
+						@* <button class="btn btn-primary" @onclick="() => SearchByCategory(categoryName)">Search</button> *@
 					</div>
 				</form>
 			}
@@ -93,9 +93,9 @@
 		<tbody>
 			@foreach (var rental in rentalHistory)
 			{
-				<td>@rental.RentalID</td>
-				<td>@rental.RentalDate.ToShortDateString()</td>
-				<td>@rental.TotalCost</td>
+				@* <td>@rental.RentalID</td> *@
+				@* <td>@rental.RentalDate.ToShortDateString()</td> *@
+				@* <td>@rental.TotalCost</td> *@
 			}
 					
 		</tbody>
@@ -113,8 +113,8 @@ else if (searchType == "Category" && matchingCategories.Any())
 			<div class="row row-cols-2">
 				<div class="col">Category ID</div>
 				<div class="col">Categpory Name</div>
-				<div class="col">@category.CategoryID</div>
-				<div class="col">@category.CategoryName</div>
+				@* <div class="col">@category.CategoryID</div> *@
+				@* <div class="col">@category.CategoryName</div> *@
 			</div>
 		</div>
 			
@@ -140,18 +140,18 @@ else if (searchType == "Date" && matchingRentals.Any())
 			@foreach (var rental in matchingRentals)
 			{
 				<tr>
-					<td>@rental.RentalID</td>
-					<td>@rental.RentalDate.ToString("MM/dd/yyyy")</td>
-					<td>@rental.Customer.CustomerID</td>
-					<td>@rental.Customer.FirstName @rental.Customer.LastName</td>
-					<td>
-						@foreach (var equipment in rental.EquipmentList)
-						{
-							<div>@equipment.EquipmentID - @equipment.EquipmentName</div>
-						}
-					</td>
-					<td>@rental.ReturnDate.ToString("MM/dd/yyyy")</td>
-					<td>@rental.TotalCost.ToString("F2")</td>
+					@* <td>@rental.RentalID</td> *@
+					@* <td>@rental.RentalDate.ToString("MM/dd/yyyy")</td> *@
+					@* <td>@rental.Customer.CustomerID</td> *@
+					@* <td>@rental.Customer.FirstName @rental.Customer.LastName</td> *@
+					@* <td> *@
+					@* 	@foreach (var equipment in rental.EquipmentList) *@
+					@* 	{ *@
+					@* 		<div>@equipment.EquipmentID - @equipment.EquipmentName</div> *@
+					@* 	} *@
+					@* </td> *@
+					@* <td>@rental.ReturnDate.ToString("MM/dd/yyyy")</td> *@
+					@* <td>@rental.TotalCost.ToString("F2")</td> *@
 				</tr>
 			}
 		</tbody>
@@ -197,7 +197,7 @@ else
 		}
 	}
 
-	public void SearchByCategory(string categoryName)
+	@*public void SearchByCategory(string categoryName)
 	{
 		matchingCategories.Clear(); // Clear previous search results
 
@@ -207,9 +207,9 @@ else
 				.Where(c => c.CategoryName == categoryName)
 				.ToList();
 		}
-	}
+	}*@
 
-	public void SearchByDate(string startDate)
+	/*public void SearchByDate(string startDate)
 	{
 		if (DateTime.TryParse(startDate, out parsedDate))
 		{
@@ -217,7 +217,7 @@ else
 			matchingRentals = Reports.GetRentalsByDate(parsedDate);  // Get rentals for the given date
 			totalSales = Reports.SalesByDate(parsedDate);  // Calculate the total sales for the given date
 		}
-	}
+	}*/
 
 	public void OnSearchTypeChanged(string selected)
 	{

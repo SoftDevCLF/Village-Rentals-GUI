@@ -33,9 +33,9 @@ namespace VillageRentalsGUI.Data
 
         }
 
-        public override string ToString()
-        {
-            return $"Equipment ID: {EquipmentID}, Category: {Category.CategoryName}, Name: {EquipmentName}, Description: {EquipmentDescription}, Daily Rental Cost: {DailyRentalCost}";
-        }
+        //public override string ToString()
+        //{
+        //    //return $"Equipment ID: {EquipmentID}, Category: {Category.CategoryName}, Name: {EquipmentName}, Description: {EquipmentDescription}, Daily Rental Cost: {DailyRentalCost}";
+        //}
     }
 }

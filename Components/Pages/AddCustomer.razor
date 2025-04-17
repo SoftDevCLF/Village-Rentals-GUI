@@ -1,8 +1,10 @@
 ﻿@page "/addcustomer"
 @using VillageRentalsGUI.Data
 @inject NavigationManager Navigation
+@inject JsonStorageService Storage
 
-<h3>Add New Customer</h3>
+
+<h1>Add New Customer</h1>
 <hr />
 <div class="container">
     <div class="row">
@@ -77,30 +79,33 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="border rounded-3 mt-3 py-2 px-3">First Name: @customer?.FirstName</td>
-                        </tr>
-                        <tr>
-                            <td class="border rounded-3 py-2 px-3">Last Name: @customer.LastName</td>
-                        </tr>
-                        <tr>
-                            <td class="border rounded-3 py-2 px-3">Phone Number: @customer.PhoneNumber</td>
-                        </tr>
-                        <tr>
-                            <td class="border rounded-3 py-2 px-3">Email: @customer.Email</td>
-                        </tr>
-                        <tr>
-                            <td class="border rounded-3 py-2 px-3">Discount: @customer.Discount%</td>
-                        </tr>
-                        <tr>
-                            <td class="border rounded-3 py-2 px-3"> Customer Status: @(customer.IsBanned ? "Banned" : "Active")</td>
-                        </tr>
+                    <tr>
+	                    <td class="border rounded-3 mt-3 py-2 px-3">Customer ID: @customer?.CustomerID</td>
+                    </tr>
+                    <tr>
+	                    <td class="border rounded-3 mt-3 py-2 px-3">First Name: @customer?.FirstName</td>
+                    </tr>
+                    <tr>
+	                    <td class="border rounded-3 py-2 px-3">Last Name: @customer.LastName</td>
+                    </tr>
+                    <tr>
+	                    <td class="border rounded-3 py-2 px-3">Phone Number: @customer.PhoneNumber</td>
+                    </tr>
+                    <tr>
+	                    <td class="border rounded-3 py-2 px-3">Email: @customer.Email</td>
+                    </tr>
+                    <tr>
+	                    <td class="border rounded-3 py-2 px-3">Discount: @customer.Discount%</td>
+                    </tr>
+                    <tr>
+	                    <td class="border rounded-3 py-2 px-3"> Customer Status: @(customer.IsBanned ? "Banned" : "Active")</td>
+                    </tr>
                     </tbody>
                 </table>
 
-				<div>
+                <div>
                     <button class="btn btn-primary mt-6" @onclick="GoToCustomerPage">Go Back to Customer Management</button>
-				</div>
+                </div>
             }
         </div>
 
@@ -110,7 +115,8 @@
 
 
 
-
+<!-- Customer All Customers Test Table -->
+@*
 @if (Customer.AllCustomers.Count > 0)
 {
     <h4>All Customers:</h4>
@@ -121,15 +127,29 @@
         }
     </ul>
 }
+*@
+
 
 @code {
-    int? customerID;
+    int customerID;
     string firstName, lastName, phoneNumber, email;
     double discount;
     string bannedString;
-    
+
     bool newCustomer = false;
+
+    // Initialize allCustomers list
     Customer customer = null; // Initialize customer to null
+    List<Customer> allCustomers = new List<Customer>();
+
+    // Initialize JSon to load. 
+    string jsonFileName = "customers.json";
+    protected override void OnInitialized()
+    {
+        allCustomers = Storage.LoadFromJsonSync<Customer>(jsonFileName);
+    }
+
+
 
     public void AddNewCustomer()
     {
@@ -139,12 +159,36 @@
             return;
         }
 
-        customerID = Customer.AllCustomers.Max(c => c.CustomerID) + 1;
+        // Replaced this with this.
+        // customerID = allCustomers.Max(c => c.CustomerID) + 1;
+
+        // Assigning ID
+        if (allCustomers.Count > 0)
+        {
+	        int maxId = 0;
+	        foreach (Customer c in allCustomers)
+	        {
+		        if (c.CustomerID > maxId)
+		        {
+			        maxId = c.CustomerID;
+		        }
+	        }
+	        customerID = maxId + 1;
+        }
+        else
+        {
+	        customerID = 1001; // starting ID
+        }
+
 
         bool banned = bannedString == "true";
 
         // The constructor already adds the customer to AllCustomers
         customer = new Customer(customerID, lastName, firstName, email, phoneNumber, banned, discount);
+
+        allCustomers.Add(customer);
+
+        Storage.SaveToJsonSync(allCustomers, jsonFileName); // Save to JSON file
 
         newCustomer = true;
 

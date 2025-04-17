@@ -1,64 +1,92 @@
 ﻿@page "/rentalsgui"
-@using Data
+@using VillageRentalsGUI.Data
+@inject NavigationManager Navigation
 
-@*@<h3>Rentals</h3>
 
-<div @bind="option">
- 
 
+<h1>Rental Management</h1>
+<hr>
+<div class="mb-4">
+	<a href="/rentals"><button class="btn btn-secondary btn-active">View All Rentals</button></a>
+	<a href="/addrental"><button class="btn btn-primary">Add New Rental</button></a>
 </div>
 
-<div>
-    <button @onclick="DisplayCustomerMenu">Select</button>
-</div> *@
+@* Search Field*@
+
+<form>
+	
+	<div class="input-group mb-3">
+		<input class="border rounded-1 w-50 ps-3" placeholder="Search..."/>
+		<button class="btn btn-primary">Search</button>
+	</div>
+
+	@*replace search equipment, add @onsubmit="#" inside*@
+	@*
+	@if (searchCriteria == "ID")
+	{
+		<div class="input-group mb-3">
+			<input class="border rounded-1 w-50 ps-3" placeholder="ID" @bind="customerID" />
+			<button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
+		</div>
+	}
+	else if (searchCriteria == "LastName")
+	{
+		<div class="input-group mb-3">
+			<input class="border rounded-1 w-50 ps-3" placeholder="Last Name" @bind="customerLastName" />
+			<button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
+		</div>
+	}
+*@
+
+</form>
+
+<p class="mt-2">Search Results</p>
+
+@* Table *@
+
+<div class="container">
+	<div class="row">
+		
+		@* Table *@
+
+		<div class="align-middle">
+			<table class="table">
+				<thead>
+				<tr >
+					<th class="text-primary border-secondary">Rental ID</th>
+					<th class="text-primary border-secondary">Date Created</th>
+
+					<th class="text-primary border-secondary">Cst ID</th>
+					<th class="text-primary border-secondary w-20">Cst Name</th>
+					
+					<th class="text-primary border-secondary">Eq ID</th>
+					<th class="text-primary border-secondary w-15">Eq Name</th>
+					
+					<th class="text-primary border-secondary">Rental Date</th>
+					<th class="text-primary border-secondary">Return Date</th>
+
+					<th class="text-primary border-secondary">Cost</th>
+					<th class="text-primary border-secondary">Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+
+
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+
 
 @code {
 
-    public static List<Rental> AllRentals { get; } = new List<Rental>();
-    //int option;
-
-    /*public void DispayRentalsMenu()
-    {
-        switch (option)
-        {
-            case 1:
-                AddRental(int rentalID, Customer customer, List < Equipment > equipmentList, DateTime rentalDate, DateTime returnDate);
-                break;
-            case 2:
-                Navigation.NavigateTo("/updatecustomer");
-                break;
-            default:
-                break;
-        }
-    }*/
-
-    // Add a new rental
-    public static void AddRental(int rentalID, DateTime currentDate, Customer customer, List<Equipment> equipmentList, DateTime rentalDate, DateTime returnDate, bool isReturned)
-    {
-        Rental newRental = new Rental(rentalID, currentDate, customer, equipmentList, rentalDate, returnDate, isReturned);
-        AllRentals.Add(newRental);
-    }
-
-    // Remove an existing rental
-    public static void RemoveRental(int rentalID)
-    {
-        var rental = AllRentals.FirstOrDefault(r => r.RentalID == rentalID);
-        if (rental != null)
-        {
-            AllRentals.Remove(rental);
-        }
-    }
-
-    // Update an existing rental
-    public static void UpdateRental(int rentalID, List<Equipment> updatedEquipmentList, DateTime updatedReturnDate)
-    {
-        var rental = AllRentals.FirstOrDefault(r => r.RentalID == rentalID);
-        if (rental != null)
-        {
-            rental.EquipmentList = updatedEquipmentList;
-            rental.ReturnDate = updatedReturnDate;
-            rental.TotalCost = rental.CalculateTotalCost(); // Recalculate the total cost
-        }
-    }
+	// 
+	// private void GoToAllCustomersPage()
+	// {
+	// 	Navigation.NavigateTo("/allcustomers");
+	// }
 
 }
+

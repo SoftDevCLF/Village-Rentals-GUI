@@ -1,7 +1,191 @@
 ﻿@page "/categorygui"
+@using VillageRentalsGUI.Data
+@inject JsonStorageService Storage
 
-<h3>Category</h3>
+<h1>Categories</h1>
+<hr>
+<div class="mb-4">
+	<a href="/addcategorygui"><button class="btn btn-primary">Add New Categories</button></a>
+</div>
+
+<!-- Search Form -->
+<form @onsubmit="SearchSubmit">
+	<div class="input-group mb-3 h-100">
+		<input class="border rounded-1 w-50 ps-3" @bind="searchText" placeholder="Enter Category Name or Category ID" />
+		<button class="btn btn-primary">Search</button>
+		
+		<!-- Clear Search-->
+		<span class="clear-link ms-2 align-items-center h-100">
+			<a href="#" class="link-secondary align-middle" @onclick="ClearSearch" @onclick:preventDefault="true">Clear</a>
+		</span>
+	</div>
+
+
+</form>
+
+
+
+<p class="@formStatusClass">@formStatus</p>
+<p class="mt-2">Search Results</p>
+
+<!-- Search Results Table -->
+
+<div class="container">
+	<div class="row">
+
+		@* Table *@
+
+		<div class="col-sm-6 align-middle">
+			<table class="table align-middle">
+				<thead>
+					<tr>
+						<th class="text-primary border-secondary">ID</th>
+						<th class="text-primary border-secondary">Category Name</th>
+
+						<th class="text-primary border-secondary">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var cat in searchList)
+					{
+						<tr class="table-hover">
+							<td>@cat.CategoryId</td>
+							<td>@cat.CategoryName</td>
+							<td>
+								<button class="btn btn-danger" @onclick="() => RemoveCategory(cat.CategoryId)">Remove</button> @*Remove Function*@
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
 
 @code {
+
+	public string formStatus = "";
+	string formStatusClass = "text-danger"; // Red text in form status
+
+	public string searchText = "";
+
+	// List initialization
+	public List<Category> categoryList = new List<Category>();
+	public List<Category> searchList = new List<Category>();
+
+
+	// INITIALIZE JSON to load and initialize categoryList as the searchList.
+	string jsonFileName = "categories.json";
+
+	protected override void OnInitialized()
+	{
+		categoryList = Storage.LoadFromJsonSync<Category>(jsonFileName);
+		searchList = new List<Category>(categoryList);
+	}
+
+	// FORM SUBMIT Method to call AddCategory()
+	public void SearchSubmit()
+	{
+		SearchCategory();
+	}
+
+
+	// Search Method
+
+	public void SearchCategory()
+	{
+		if (string.IsNullOrWhiteSpace(searchText))
+		{
+			// If there is no text, keep showing the text.
+			searchList = new List<Category>(categoryList);
+			formStatusClass = "text-danger";
+			formStatus = "Enter a search term";
+		}
+
+		else
+		{
+			// Clear previous results
+			searchList = new List<Category>(); 
+
+			// Loop in adding category to searchList
+			foreach (Category c in categoryList)
+			{
+				if (c.CategoryName.ToLower().Contains(searchText.ToLower()) ||
+					c.CategoryId.ToString().Contains(searchText))
+				{
+					searchList.Add(c);
+				}
+
+			}
+
+		}
+
+	}
+
+	// Remove Category (To be migrated to the category GUI)
+	public void RemoveCategory(int categoryId)
+	{
+
+		Category categoryToRemove = null;
+
+		// Check if list is not empty
+		if (categoryList.Count > 0)
+		{
+			// Find the category by categoryID
+			foreach (Category c in categoryList)
+			{
+				if (c.CategoryId == categoryId)
+				{
+					// Put it in an object
+					categoryToRemove = c;
+					break;
+				}
+			}
+
+
+			// If there is an object inside do this.
+			if (categoryToRemove != null)
+			{
+				categoryList.Remove(categoryToRemove);
+
+				Storage.SaveToJsonSync(categoryList, "categories.json");
+
+				formStatus = "Category '" + categoryToRemove.CategoryName + "' removed.";
+
+				searchList = new List<Category>(categoryList);
+			}
+			// If the CATEGORIES are NOT FOUND
+			else
+			{
+				formStatusClass = "text-danger";
+				formStatus = "Category not found.";
+			}
+
+
+		}
+
+		// If there are NO CATEGORIES.
+		else
+		{
+			formStatusClass = "text-danger";
+			formStatus = "No categories to remove.";
+		}
+	}
+
+	// Clear Search
+	public void ClearSearch()
+	{
+		searchText = "";
+		searchList = new List<Category>(categoryList);
+		formStatusClass = "text-primary";
+		formStatus = "Search is cleared";
+	}
+
+
+	// SAVE TO JSON (Serializer)
+	private async Task SaveAsync()
+	{
+		Storage.SaveToJsonSync(categoryList, jsonFileName);
+	}
 
 }

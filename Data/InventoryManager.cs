@@ -20,16 +20,16 @@ namespace VillageRentalsGUI.Data
         public static void AddInventoryItem(int equipmentID, int categoryID, string categoryName, string equipmentName, string equipmentDescription, double dailyRentalCost)
         {
             // Create new category with both ID and name
-            Category category = new Category(categoryID, categoryName);
+            //@*Category category = new Category(categoryID, categoryName);*@
 
             // Create new equipment
-            Equipment newEquipment = new Equipment(equipmentID, category, equipmentName, equipmentDescription, dailyRentalCost);
+            //Equipment newEquipment = new Equipment(equipmentID, category, equipmentName, equipmentDescription, dailyRentalCost);
 
             // Create a new inventory item for the equipment
-            new InventoryManager(newEquipment);
+            //new InventoryManager(newEquipment);
 
             // Optionally, you can print confirmation
-            Console.WriteLine($"New Inventory Item Added: {newEquipment.EquipmentName}");
+            //Console.WriteLine($"New Inventory Item Added: {newEquipment.EquipmentName}");
         }
 
         // Remove inventory item from the list (for example, if sold)

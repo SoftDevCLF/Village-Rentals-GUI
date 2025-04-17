@@ -1,5 +1,11 @@
 ﻿html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Inter', 'Open Sans', Helvetica, Arial, sans-serif;
+    font-optical-sizing: auto;
+}
+
+h1 {
+    font-weight: 200;
+    line-spacing: 120%;
 }
 
 a, .btn-link {
@@ -10,6 +16,11 @@ a, .btn-link {
     color: #fff;
     background-color: #1b6ec2;
     border-color: #1861ac;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: 801F4F;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -68,6 +79,32 @@ h1:focus {
 .status-bar-safe-area {
     display: none;
 }
+
+/* Added by Louie */
+.clear-link {
+    float: left;
+}
+
+.clear-link a {
+    text-decoration: none;
+}
+
+.clear-link a:hover {
+    text-decoration-color: #1b6ec2; 
+}
+
+.btn-info {
+    color: #fff;
+    background-color: #6F42C1;
+    border-color: #6F42C1;
+}
+
+.btn-info:hover {
+    color: #fff;
+    background-color: #8957e3;
+    border-color: #6F42C1;
+}
+
 
 @supports (-webkit-touch-callout: none) {
     .status-bar-safe-area {
