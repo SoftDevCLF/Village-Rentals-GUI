@@ -1,0 +1,120 @@
+﻿@page "/updateequipment/{EquipmentID:int}"
+@using VillageRentalsGUI.Data
+@inject NavigationManager Nav
+
+<h3 class="mb-4">Update Equipment</h3>
+<hr/>
+
+<div class="row">
+    <div class="col-md-6">
+        <p><strong>Enter New Equipment Details:</strong><br />
+            <span class="text-danger">*</span> Required</p>
+
+        <div class="mb-3">
+            <label class="form-label">Equipment Name <span class="text-danger">*</span></label>
+            <input class="form-control" @bind="equipmentName" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Daily Rate</label>
+            <input class="form-control" type="number" step="0.01" @bind="dailyRate" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" @bind="description"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Category <span class="text-danger">*</span></label>
+            <select class="form-select" @bind="selectedCategoryId">
+                <option disabled value="">Select Category</option>
+                @foreach (Category category in categories)
+                {
+                        <option value="@category.CategoryID">@($"{category.CategoryID} - {category.CategoryName}")</option>
+                }
+            </select>
+        </div>
+
+        <div class="d-flex gap-2">
+            @if (!isUpdated)
+            {
+                    <button class="btn btn-primary" @onclick="UpdateEquipments">Save Changes</button>
+                    <button class="btn btn-danger" @onclick="Cancel">Cancel</button>
+            }
+            else
+            {
+                    <button class="btn btn-success" @onclick="GoBack">Back to Inventory</button>
+            }
+        </div>
+    </div>
+
+    @if (isUpdated)
+    {
+            <div class="col-md-6">
+                <div class="alert alert-success">Equipment Updated!</div>
+                <table class="table w-auto">
+                    <tr><td><strong>Equipment ID:</strong></td><td>@equipment?.EquipmentID</td></tr>
+                    <tr><td><strong>Equipment Name:</strong></td><td>@equipment?.EquipmentName</td></tr>
+                    <tr><td><strong>Daily Rate:</strong></td><td>@equipment?.DailyRentalCost</td></tr>
+                    <tr><td><strong>Category:</strong></td><td>@equipment?.Category?.CategoryName</td></tr>
+                    <tr><td><strong>Category ID:</strong></td><td>@equipment?.Category?.CategoryID</td></tr>
+                </table>
+            </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int EquipmentID { get; set; }
+
+    private Equipment? equipment;
+    private string equipmentName = "";
+    private double dailyRate;
+    private string description = "";
+    private int selectedCategoryId;
+    private List<Category> categories = Category.AllCategories;
+
+    private bool isUpdated = false;
+
+    protected override void OnInitialized()
+    {
+        DataLoader.LoadAll();
+        equipment = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == EquipmentID);
+
+        if (equipment != null)
+        {
+            equipmentName = equipment.EquipmentName;
+            dailyRate = equipment.DailyRentalCost;
+            description = equipment.EquipmentDescription;
+            selectedCategoryId = equipment.Category?.CategoryID ?? 0;
+        }
+    }
+
+    private void UpdateEquipments()
+    {
+        if (equipment == null)
+            return;
+
+        equipment.EquipmentName = equipmentName;
+        equipment.DailyRentalCost = dailyRate;
+        equipment.EquipmentDescription = description;
+
+        Category? category = categories.FirstOrDefault(c => c.CategoryID == selectedCategoryId);
+        equipment.Category = category;
+
+        DataLoader.SaveAll();
+
+        isUpdated = true;
+    }
+
+    private void Cancel()
+    {
+        Nav.NavigateTo("/inventorygui");
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/inventorygui");
+    }
+}
+
