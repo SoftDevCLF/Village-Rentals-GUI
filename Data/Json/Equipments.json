@@ -1,0 +1,52 @@
+﻿[
+    {
+        "EquipmentID": 101,
+        "EquipmentName": "Hammer drill",
+        "EquipmentDescription": "Powerful drill for concrete and masonry",
+        "DailyRentalCost": 25.99,
+        "Category": {
+            "CategoryID": 10,
+            "CategoryName": "Power tools"
+        }
+    },
+    {
+        "EquipmentID": 201,
+        "EquipmentName": "Chainsaw",
+        "EquipmentDescription": "Gas-powered chainsaw for cutting wood",
+        "DailyRentalCost": 29.99,
+        "Category": {
+            "CategoryID": 20,
+            "CategoryName": "Yard equipment"
+        }
+    },
+    {
+        "EquipmentID": 202,
+        "EquipmentName": "Lawn Mower",
+        "EquipmentDescription": "Self-propelled lawn mower with mulching function",
+        "DailyRentalCost": 19.99,
+        "Category": {
+            "CategoryID": 20,
+            "CategoryName": "Yard equipment"
+        }
+    },
+    {
+        "EquipmentID": 301,
+        "EquipmentName": "Small Compressor",
+        "EquipmentDescription": "5 Gallon Compressor-Portable",
+        "DailyRentalCost": 14.99,
+        "Category": {
+            "CategoryID": 30,
+            "CategoryName": "Compressors"
+        }
+    },
+    {
+        "EquipmentID": 501,
+        "EquipmentName": "Lawn Mower",
+        "EquipmentDescription": "Brad Nailer. Requires 3/4 to 1 1/2 Brad Nails",
+        "DailyRentalCost": 10.99,
+        "Category": {
+            "CategoryID": 50,
+            "CategoryName": "Air Tools"
+        }
+    }
+]

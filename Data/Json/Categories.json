@@ -1,0 +1,22 @@
+﻿[
+    {
+        "CategoryID": 10,
+        "CategoryName": "Power tools"
+    },
+    {
+        "CategoryID": 20,
+        "CategoryName": "Yard equipment"
+    },
+    {
+        "CategoryID": 30,
+        "CategoryName": "Compressors"
+    },
+    {
+        "CategoryID": 40,
+        "CategoryName": "Generators"
+    },
+    {
+        "CategoryID": 50,
+        "CategoryName": "Air Tools"
+    }
+]

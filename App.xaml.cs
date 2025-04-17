@@ -1,4 +1,6 @@
-﻿namespace VillageRentalsGUI
+﻿using VillageRentalsGUI.Data;
+
+namespace VillageRentalsGUI
 {
     public partial class App : Application
     {
