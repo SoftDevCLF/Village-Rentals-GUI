@@ -6,9 +6,9 @@
 <hr />
 
 <!-- Equipment list table -->
-<table class="table">
+<table class="table align-middle">
     <thead>
-        <tr>
+        <tr >
             <th class="text-primary border-secondary">Equipment ID</th>
             <th class="text-primary border-secondary">Name</th>
             <th class="text-primary border-secondary">Daily Rate</th>
@@ -23,7 +23,7 @@
                 <td>@equipment.EquipmentID</td>                        <!-- Display ID -->
                 <td>@equipment.EquipmentName</td>                      <!-- Display name -->
                 <td>@equipment.DailyRentalCost.ToString("C")</td>     <!-- Display rate formatted as currency -->
-                <td>@equipment.Category?.CategoryName</td>            <!-- Display category name -->
+                <td>@equipment.Category.CategoryName</td>            <!-- Display category name -->
                 <td>@equipment.EquipmentDescription</td>              <!-- Display description -->
             </tr>
         }

@@ -2,7 +2,7 @@
 @using VillageRentalsGUI.Data
 @inject NavigationManager Nav
 
-<h3 class="mb-4">Add New Equipment</h3>
+<h1 class="mb-4">Add New Equipment</h1>
 <hr/>
 <div class="row">
     <!-- Left column for form -->
@@ -40,12 +40,12 @@
             <div class="col-sm-8">
                 <select class="form-select w-100" style="max-width: 100%;" @bind="selectedCategory">
                     <option disabled selected value="">Select Category</option>
-                    @* @foreach (Category category in Category.AllCategories) // LOUIE TO FIX *@
-                    @* { *@
-                    @*         <option value="@category.CategoryID.ToString()"> *@
-                    @*         @($"{category.CategoryID.ToString().PadRight(5)} - {category.CategoryName}") *@
-                    @*         </option> *@
-                    @* } *@
+                    @foreach (Category category in Category.categoryList) 
+                    {
+                            <option value="@category.CategoryId.ToString()">
+                             @($"{category.CategoryId.ToString().PadRight(5)} - {category.CategoryName}")
+                             </option> 
+                     } 
                 </select>
             </div>
         </div>
@@ -70,16 +70,16 @@
     @if (isSubmitted)
     {
             <div class="col-md-6">
-                <div class="alert alert-success">
+            <div class="alert alert-success -3 bg-success bg-opacity-50 rounded-1 text-white fs-4 ">
                     <strong>Equipment Added!</strong>
                 </div>
 
-                <table class="table w-auto">
-                    <tr><td><strong>Equipment ID:</strong></td><td>@addedEquipment?.EquipmentID</td></tr>
-                    <tr><td><strong>Equipment Name:</strong></td><td>@addedEquipment?.EquipmentName</td></tr>
-                    <tr><td><strong>Daily Rate:</strong></td><td>@addedEquipment?.DailyRentalCost</td></tr>
-                    <tr><td><strong>Category:</strong></td><td>@addedEquipment?.Category?.CategoryName</td></tr>
-                @* <tr><td><strong>Category ID:</strong></td><td>@addedEquipment?.Category?.CategoryID</td></tr> // LOUIE TO FIX *@
+                <table class="table w-auto align-middle">
+                <tr><td class="mt-3 py-2 px-3"><strong>Equipment ID:</strong></td><td>@addedEquipment?.EquipmentID</td></tr>
+                <tr><td class="mt-3 py-2 px-3"><strong>Equipment Name:</strong></td><td>@addedEquipment?.EquipmentName</td></tr>
+                <tr><td class="mt-3 py-2 px-3"><strong>Daily Rate:</strong></td><td>@addedEquipment?.DailyRentalCost</td></tr>
+                <tr><td class="mt-3 py-2 px-3"><strong>Category:</strong></td><td>@addedEquipment?.Category?.CategoryName</td></tr>
+                <tr><td class="mt-3 py-2 px-3"><strong>Category ID:</strong></td><td>@addedEquipment?.Category?.CategoryId</td></tr>
                 </table>
             </div>
     }
@@ -91,11 +91,17 @@
     private double dailyRate;
     private string description = "";
     private string selectedCategory = "";
-    // private List<Category> categories = Category.AllCategories; // LOUIE TO FIX
+    private List<Category> categories = Category.categoryList;
 
     // State tracking
     private Equipment? addedEquipment;
     private bool isSubmitted = false;
+
+    protected override void OnInitialized()
+    {
+	    DataLoader.LoadAll(); // This ensures Category list is filled
+    }
+
 
     // Handles the form submission
     private void SubmitEquipment()
@@ -104,30 +110,30 @@
         if (string.IsNullOrWhiteSpace(equipmentName) || string.IsNullOrWhiteSpace(selectedCategory))
             return;
 
-        // Parse category ID // LOUIE TO FIX
+        // Parse category ID
         int categoryId = int.TryParse(selectedCategory, out int parsed) ? parsed : 0;
-        // Category? category = categories.FirstOrDefault(c => c.CategoryID == categoryId);
-        // if (category == null) return;
+        Category? category = categories.FirstOrDefault(c => c.CategoryId == categoryId);
+        if (category == null) return;
 
-        // Generate a new ID based on category grouping // LOUIE TO FIX
-        // int countInCategory = Equipment.AllEquipment.Count(e => e.Category.CategoryID == category.CategoryID);
-        // int newId = category.CategoryID * 10 + (countInCategory + 1);
+        // Generate a new ID based on category grouping
+        int countInCategory = Equipment.AllEquipment.Count(e => e.Category.CategoryId == category.CategoryId);
+        int newId = category.CategoryId * 10 + (countInCategory + 1);
 
-        // Add the new item to the inventory // LOUIE TO FIX
-        // InventoryManager.AddInventoryItem(
-        //     newId,
-        //     category.CategoryID,
-        //     category.CategoryName,
-        //     equipmentName,
-        //     description,
-        //     dailyRate
-        // );
+        // Add the new item to the inventory
+        InventoryManager.AddInventoryItem(
+            newId,
+            category.CategoryId,
+            category.CategoryName,
+            equipmentName,
+            description,
+            dailyRate
+        );
 
         // Save to JSON file
         DataLoader.SaveAll();
 
-        // Store for confirmation display // LOUIE TO FIX
-        // addedEquipment = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == newId);
+        // Store for confirmation display
+        addedEquipment = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == newId);
         isSubmitted = true;
     }
 

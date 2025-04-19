@@ -1,6 +1,5 @@
 ﻿@page "/categorygui"
 @using VillageRentalsGUI.Data
-@inject JsonStorageService Storage
 
 <h1>Categories</h1>
 <hr>
@@ -66,22 +65,22 @@
 
 	public string formStatus = "";
 	string formStatusClass = "text-danger"; // Red text in form status
-
 	public string searchText = "";
 
-	// List initialization
-	public List<Category> categoryList = new List<Category>();
-	public List<Category> searchList = new List<Category>();
+	// List initialization - LOUIE REPLACED
+	// public List<Category> categoryList = new List<Category>(); 
+	List<Category> categoryList => Category.categoryList; // Also can be in SYNTAX: public List<Category> categoryList { get { return Category.categoryList; } }
+	public List<Category> searchList = new();
 
 
-	// INITIALIZE JSON to load and initialize categoryList as the searchList.
-	string jsonFileName = "categories.json";
 
+	// Initialize the form with existing CATEGORY data
 	protected override void OnInitialized()
 	{
-		categoryList = Storage.LoadFromJsonSync<Category>(jsonFileName);
-		searchList = new List<Category>(categoryList);
+		DataLoader.LoadAll(); // Load data from JSON - Loads all data into Category.categoryList
+		searchList = new List<Category>(categoryList); // use global list
 	}
+
 
 	// FORM SUBMIT Method to call AddCategory()
 	public void SearchSubmit()
@@ -148,7 +147,7 @@
 			{
 				categoryList.Remove(categoryToRemove);
 
-				Storage.SaveToJsonSync(categoryList, "categories.json");
+				DataLoader.SaveAll(); // Save removed to JSON file
 
 				formStatus = "Category '" + categoryToRemove.CategoryName + "' removed.";
 
@@ -181,11 +180,5 @@
 		formStatus = "Search is cleared";
 	}
 
-
-	// SAVE TO JSON (Serializer)
-	private async Task SaveAsync()
-	{
-		Storage.SaveToJsonSync(categoryList, jsonFileName);
-	}
 
 }

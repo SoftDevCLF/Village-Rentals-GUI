@@ -9,7 +9,9 @@ namespace VillageRentalsGUI.Data
 {
     public class Customer
     {
-        public static List<Customer> AllCustomers = new List<Customer>();
+        public static List<Customer> AllCustomers { get; set; } = new(); // Need to assign static
+
+        //public static List<Customer> AllCustomers = new List<Customer>();
         
         public int CustomerID { get; set; }
         public string FirstName { get; set; }
@@ -18,7 +20,11 @@ namespace VillageRentalsGUI.Data
         public string PhoneNumber { get; set; }
         public bool IsBanned { get; set; }  // This is a public auto-property now
         public double Discount { get; set; }
-        public List<Rental> Rentals { get; set; } = new List<Rental>(); //Louie: Why need a rental list now, this should be in the rental part?
+
+        //[JsonIgnore] // 🔥 this is what prevents serialization errors
+        public List<Rental> Rentals { get; set; } = new();
+
+        //public List<Rental> Rentals { get; set; } = new List<Rental>(); //Louie: Why need a rental list now, this should be in the rental part?
 
         public Customer() { } // Required for JSON serialization
 

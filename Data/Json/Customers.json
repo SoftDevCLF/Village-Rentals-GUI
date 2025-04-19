@@ -1,0 +1,42 @@
+[
+  {
+    "CustomerID": 1001,
+    "FirstName": "John",
+    "LastName": "Doe",
+    "Email": "jd@sample.net",
+    "PhoneNumber": "(555)555-1212",
+    "IsBanned": false,
+    "Discount": 0,
+    "Rentals": []
+  },
+  {
+    "CustomerID": 1002,
+    "FirstName": "Jane",
+    "LastName": "Smith",
+    "Email": "js@live.com",
+    "PhoneNumber": "(555)555-3434",
+    "IsBanned": false,
+    "Discount": 0,
+    "Rentals": []
+  },
+  {
+    "CustomerID": 1003,
+    "FirstName": "Michael",
+    "LastName": "Lee",
+    "Email": "ml@sample.net",
+    "PhoneNumber": "(555)555-5656",
+    "IsBanned": false,
+    "Discount": 20,
+    "Rentals": []
+  },
+  {
+    "CustomerID": 1004,
+    "FirstName": "Daniel",
+    "LastName": "Roberts",
+    "Email": "dr@live.com",
+    "PhoneNumber": "(555)555-5555",
+    "IsBanned": true,
+    "Discount": 0,
+    "Rentals": []
+  }
+]

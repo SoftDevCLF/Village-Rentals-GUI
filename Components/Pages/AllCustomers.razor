@@ -1,7 +1,6 @@
 ﻿@page "/allcustomers"
 @using VillageRentalsGUI.Data
 @inject NavigationManager Navigation
-@inject JsonStorageService Storage
 
 <h1>All Customers</h1>
 <hr />
@@ -56,12 +55,15 @@ else
 
 
 @code {
-	List<Customer> allCustomers = new List<Customer>();
-	string jsonFileName = "customers.json";
 
+	// Initialize Lists
+	// List<Customer> allCustomers = new List<Customer>();
+	List<Customer> allCustomers => Customer.AllCustomers; // Get the global list, get and return it.
+
+	// Initialize GLOBAL JSON List
 	protected override void OnInitialized()
 	{
-		allCustomers = Storage.LoadFromJsonSync<Customer>(jsonFileName);
+		DataLoader.LoadAll(); // Load from disk into global list
 	}
 
 	private void GoToCustomerPage()

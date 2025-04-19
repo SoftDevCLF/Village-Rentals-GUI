@@ -22,23 +22,23 @@ namespace VillageRentalsGUI.Data
         public static void AddInventoryItem(int equipmentID, int categoryID, string categoryName, string equipmentName, string equipmentDescription, double dailyRentalCost)
         {
             // Try to find an existing category by ID
-            //Category? category = Category.AllCategories.FirstOrDefault(c => c.CategoryID == categoryID); // LOUIE TO FIX
+            Category? category = Category.categoryList.FirstOrDefault(c => c.CategoryId == categoryID);
 
-            // If category doesn't exist, create and add it // LOUIE TO FIX
-            //if (category == null)
-            //{
-            //    category = new Category(categoryID, categoryName);
-            //    Category.AllCategories.Add(category);
-            //}
+            // If category doesn't exist, create and add it
+            if (category == null)
+            {
+                category = new Category(categoryID, categoryName);
+                Category.categoryList.Add(category);
+        }
 
-            // Create a new Equipment instance with the found or created category // LOUIE TO FIX
-            //Equipment newEquipment = new Equipment(equipmentID, category, equipmentName, equipmentDescription, dailyRentalCost);
+        // Create a new Equipment instance with the found or created category
+        Equipment newEquipment = new Equipment(equipmentID, category, equipmentName, equipmentDescription, dailyRentalCost);
 
             // Wrap it in an InventoryManager if needed (not strictly necessary)
-            //new InventoryManager(newEquipment); // LOUIE TO FIX
+            new InventoryManager(newEquipment);
 
-            // Optional debug log
-            //Console.WriteLine($"New Inventory Item Added: {newEquipment.EquipmentName}"); // LOUIE TO FIX
+            // Optional ` log
+            Console.WriteLine($"New Inventory Item Added: {newEquipment.EquipmentName}");
         }
 
         // Removes an equipment item from the system by ID

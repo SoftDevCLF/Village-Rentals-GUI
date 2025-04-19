@@ -11,6 +11,7 @@ namespace VillageRentalsGUI.Data
         // A shared static list that holds all equipment created in memory
         public static List<Equipment> AllEquipment { get; set; } = new List<Equipment>();
 
+
         // Private backing fields for encapsulated properties
         private int _equipmentID;
         private string _equipmentName;

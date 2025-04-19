@@ -11,6 +11,10 @@ namespace VillageRentalsGUI.Data
     public class Category
     {
 
+        // Global Category List
+        public static List<Category> categoryList { get; set; } = new(); // Need to assign static
+        //public List<Category> categoryList = new List<Category>();
+
         public int CategoryId { get; set; }
 
         public string CategoryName { get; set; }

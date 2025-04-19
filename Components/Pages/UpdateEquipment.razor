@@ -33,12 +33,12 @@
             <label class="form-label">Category <span class="text-danger">*</span></label>
             <select class="form-select" @bind="selectedCategoryId">
                 <option disabled value="">Select Category</option>
-                @* @foreach (Category category in categories) *@
-                @* { *@
-                @*     <!-- Show both ID and name for clarity --> *@
-                @*     // LOUIE TO FIX *@
-                @*     <option value="@category.CategoryID">@($"{category.CategoryID} - {category.CategoryName}")</option> *@
-                @* } *@
+                @foreach (Category category in Category.categoryList)
+                { 
+	                @* <!-- Show both ID and name for clarity -->  *@
+	                <option value="@category.CategoryId">@($"{category.CategoryId} - {category.CategoryName}")</option>
+
+                }
             </select>
         </div>
 
@@ -67,8 +67,8 @@
                 <tr><td><strong>Equipment ID:</strong></td><td>@equipment?.EquipmentID</td></tr>
                 <tr><td><strong>Equipment Name:</strong></td><td>@equipment?.EquipmentName</td></tr>
                 <tr><td><strong>Daily Rate:</strong></td><td>@equipment?.DailyRentalCost</td></tr>
-                <tr><td><strong>Category:</strong></td><td>@equipment?.Category?.CategoryName</td></tr>
-                @* <tr><td><strong>Category ID:</strong></td><td>@equipment?.Category?.CategoryID</td></tr> // LOUIE TO FIX *@
+                <tr><td><strong>Category:</strong></td><td>@equipment?.Category.CategoryName</td></tr>
+                <tr><td><strong>Category ID:</strong></td><td>@equipment?.Category.CategoryId</td></tr> 
             </table>
         </div>
     }
@@ -82,7 +82,7 @@
     private double dailyRate;                    // Updated daily rate
     private string description = "";             // Updated description
     private int selectedCategoryId;              // Selected category ID
-    // private List<Category> categories = Category.AllCategories;  // Available categories list // LOUIE TO FIX
+    private List<Category> categories = Category.categoryList;  // Available categories list
 
     private bool isUpdated = false;              // Flag to indicate if update succeeded
 
@@ -100,7 +100,7 @@
             equipmentName = equipment.EquipmentName;
             dailyRate = equipment.DailyRentalCost;
             description = equipment.EquipmentDescription;
-            // selectedCategoryId = equipment.Category?.CategoryID ?? 0; // LOUIE TO FIX
+            selectedCategoryId = equipment.Category?.CategoryId ?? 0;
         }
     }
 
@@ -116,8 +116,8 @@
         equipment.EquipmentDescription = description;
 
         // Find and assign updated category
-        //Category? category = categories.FirstOrDefault(c => c.CategoryID == selectedCategoryId); // LOUIE TO FIX
-        // equipment.Category = category;
+        Category category = categories.FirstOrDefault(c => c.CategoryId == selectedCategoryId); 
+        equipment.Category = category;
 
         DataLoader.SaveAll(); // Save updated data to JSON
 

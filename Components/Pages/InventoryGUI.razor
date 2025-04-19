@@ -8,7 +8,7 @@
 <!-- Navigation buttons -->
 <div class="d-flex gap-2 mb-3">
     <!-- Navigate to view all equipment -->
-    <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/viewequipment")'>View Equipment</button>
+    <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/viewequipment")'>View All Equipment</button>
     <!-- Navigate to add new equipment -->
     <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/addequipment")'>Add New Equipment</button>
 </div>
@@ -17,10 +17,12 @@
 <form @onsubmit="Search">
     <div class="input-group mb-3 w-50">
         <!-- Search input bound to searchTerm -->
-        <input class="form-control" placeholder="Search by name..." @bind="searchTerm" />
+        <input class="form-control" placeholder="Search by Equipment Name" @bind="searchTerm" />
         <button class="btn btn-primary" type="submit">Search</button>
     </div>
 </form>
+<p class="@formStatusClass">@formStatus</p>
+
 
 <div class="row">
     <!-- Filter controls column -->
@@ -29,15 +31,15 @@
         <div>
             <!-- Radio to show all items -->
             <input type="radio" name="availability" value="all"
-                   checked="@IsAllSelected"
-                   @onchange="@(e => availability = "all")" />
+            checked="@IsAllSelected"
+            @onchange="@(e => availability = "all")" />
             <label>Show All</label>
         </div>
         <div>
             <!-- Radio to filter only available (non-zero cost) equipment -->
             <input type="radio" name="availability" value="available"
-                   checked="@IsAvailableSelected"
-                   @onchange="@(e => availability = "available")" />
+            checked="@IsAvailableSelected"
+            @onchange="@(e => availability = "available")" />
             <label>By Availability</label>
         </div>
     </div>
@@ -48,49 +50,49 @@
 
         @if (filteredEquipment.Any())
         {
-                <!-- Table of filtered equipment -->
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th class="text-primary border-secondary">ID</th>
-                            <th class="text-primary border-secondary">Equipment Name</th>
-                            <th class="text-primary border-secondary">Daily Rate</th>
-                            <th class="text-primary border-secondary">Category</th>
-                            <th class="text-primary border-secondary">Description</th>
-                            <th class="text-primary border-secondary">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <!-- Table of filtered equipment -->
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-primary border-secondary">ID</th>
+                        <th class="text-primary border-secondary">Equipment Name</th>
+                        <th class="text-primary border-secondary">Daily Rate</th>
+                        <th class="text-primary border-secondary">Category</th>
+                        <th class="text-primary border-secondary">Description</th>
+                        <th class="text-primary border-secondary">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
                     @foreach (Equipment item in filteredEquipment)
                     {
-                                <tr>
-                                    <td>@item.EquipmentID</td>
-                                    <td>@item.EquipmentName</td>
-                                    <td>@item.DailyRentalCost.ToString("C")</td>
-                                    <td>@item.Category?.CategoryName</td>
-                                    <td>@item.EquipmentDescription</td>
-                                    <td>
-                                        <!-- Button to update selected equipment -->
-                                        <button class="btn btn-sm btn-primary me-2"
-                                                @onclick="() => GoToUpdatePage(item.EquipmentID)">
-                                            Update
-                                        </button>
+                        <tr>
+                            <td>@item.EquipmentID</td>
+                            <td>@item.EquipmentName</td>
+                            <td>@item.DailyRentalCost.ToString("C")</td>
+                            <td>@item.Category.CategoryName</td>
+                            <td>@item.EquipmentDescription</td>
+                            <td>
+                                <!-- Button to update selected equipment -->
+                                <button class="btn btn-sm btn-primary me-2"
+                                @onclick="() => GoToUpdatePage(item.EquipmentID)">
+                                    Update
+                                </button>
 
-                                        <!-- Button to remove selected equipment -->
-                                        <button class="btn btn-sm btn-danger"
-                                                @onclick="() => Remove(item.EquipmentID)">
-                                            Remove
-                                        </button>
-                                    </td>
-                                </tr>
+                                <!-- Button to remove selected equipment -->
+                                <button class="btn btn-sm btn-danger"
+                                @onclick="() => Remove(item.EquipmentID)">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
                     }
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
         }
         else
         {
-                <!-- If no matching equipment -->
-                <p>No equipment found.</p>
+            <!-- If no matching equipment -->
+            <p>No equipment found.</p>
         }
     </div>
 </div>
@@ -113,7 +115,24 @@
     private void RefreshList() => Filter();
 
     // Called on search form submission
-    private void Search() => Filter();
+    // Added form status when nothing is entere;
+    private void Search()
+    {
+	    if (string.IsNullOrWhiteSpace(searchTerm))
+	    {
+
+		    formStatus = "Please Add An Equipment Name to Search";
+		    formStatusClass = "text-danger";
+		    Filter();
+	    }
+
+
+    }
+
+    // Form Status
+    public string formStatus = "";
+    string formStatusClass = "text-danger"; // Red text in form status
+
 
     // Filters the equipment list based on search and availability
     private void Filter()
@@ -130,9 +149,13 @@
     // Removes an equipment item and updates the JSON and UI
     private void Remove(int equipmentID)
     {
+	    Equipment? equipmentToRemove = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == equipmentID);
         InventoryManager.RemoveInventoryItem(equipmentID); // Remove from memory
         DataLoader.SaveAll();                              // Save changes to JSON
         Filter();                                           // Refresh displayed list
+        // Status message
+        formStatus = $"Equipment '{equipmentToRemove.EquipmentName}' (ID: {equipmentID}) removed.";
+        formStatusClass = "text-success";
     }
 
     // Navigates to the Update Equipment page with selected ID

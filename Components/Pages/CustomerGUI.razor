@@ -1,7 +1,6 @@
 ﻿@page "/customergui"
 @using Data
 @inject NavigationManager Navigation
-@inject JsonStorageService Storage
 
 
 <h1>Customer Management</h1>
@@ -79,18 +78,18 @@
                                 <td>@customer.FirstName @customer.LastName</td>
                                 <td>@customer.Email</td>
                                 <td>
-	                                @if (customer.IsBanned)
-	                                {
-		                                <span class="text-danger">Banned</span>
-	                                }
-	                                else
-	                                {
-		                                <span>Active</span>
-	                                }
+                                    @if (customer.IsBanned)
+                                    {
+                                        <span class="text-danger">Banned</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Active</span>
+                                    }
                                 </td>
                                 <td>@($"{customer.Discount}%")</td>
                                 <td>
-	                                <button class="btn btn-info" @onclick="() => GoToUpdateCustomerPage(customer.CustomerID)">Update</button>
+                                    <button class="btn btn-info" @onclick="() => GoToUpdateCustomerPage(customer.CustomerID)">Update</button>
                                     <button class="btn btn-danger" @onclick="() => RemoveCustomer(customer.CustomerID)">Remove</button> @*Remove Function*@
 
                                 </td>
@@ -105,7 +104,7 @@
 </div>
 
 @code {
-	string customerID = "";
+    string customerID = "";
     string searchCriteria = "ID"; // Default selection
     string formStatus = "";
     string formStatusClass = "text-danger";
@@ -113,18 +112,20 @@
 
 
     // All loaded customers
-    List<Customer> allCustomers = new List<Customer>();
+    // List<Customer> allCustomers = new List<Customer>();
     List<Customer> matchingCustomers = new List<Customer>();
 
-    // JSON filename
-    string jsonFileName = "customers.json";
 
-    // Initialize JSon to load. 
+    // Initialize JSon to load with Existing Customer Data. 
     protected override void OnInitialized()
     {
-        allCustomers = Storage.LoadFromJsonSync<Customer>(jsonFileName);
-        matchingCustomers = new List<Customer>(allCustomers); //  Show all on load
+	    DataLoader.LoadAll(); // Load data from JSON - Loads all data into Category.categoryList
+	    matchingCustomers = new List<Customer>(Customer.AllCustomers); // load initial state
+
     }
+
+
+
 
     private bool IsIDSelected => searchCriteria == "ID";
     private bool IsLastNameSelected => searchCriteria == "LastName";
@@ -143,44 +144,44 @@
         //         .Where(c => c.CustomerID == customerID)
         //         .ToList();
         // }
-        
+
         if (searchCriteria == "ID" && !string.IsNullOrWhiteSpace(customerID))
         {
-	        int id;
-	        if (int.TryParse(customerID, out id))
-	        {
-		        foreach (Customer c in allCustomers)
-		        {
-			        if (c.CustomerID == id)
-			        {
-				        matchingCustomers.Add(c);
-			        }
-		        }
-	        }
-	        else
-	        {
-		        formStatusClass = "text-danger";
-		        formStatus = "Invalid ID format.";
-	        }
+            int id;
+            if (int.TryParse(customerID, out id))
+            {
+                foreach (Customer c in Customer.AllCustomers)
+                {
+                    if (c.CustomerID == id)
+                    {
+                        matchingCustomers.Add(c);
+                    }
+                }
+            }
+            else
+            {
+                formStatusClass = "text-danger";
+                formStatus = "Invalid ID format.";
+            }
         }
         else if (searchCriteria == "LastName" && !string.IsNullOrWhiteSpace(searchText.Trim()))
         {
-	        // Clear search results and avoid duplicate
-	        matchingCustomers = new List<Customer>();
-            
-	        // Loop in adding category to searchList
-	        foreach (Customer c in allCustomers)
-	        {
-		        if (c.LastName != null)
-		        {
-			        string lowerLast = c.LastName.ToLower();
-			        string lowerSearch = searchText.ToLower();
-			        if (lowerLast.Contains(lowerSearch))
-			        {
-				        matchingCustomers.Add(c);
-			        }
-		        }
-	        }
+            // Clear search results and avoid duplicate
+            matchingCustomers = new List<Customer>();
+
+            // Loop in adding category to searchList
+            foreach (Customer c in Customer.AllCustomers)
+            {
+                if (c.LastName != null)
+                {
+                    string lowerLast = c.LastName.ToLower();
+                    string lowerSearch = searchText.ToLower();
+                    if (lowerLast.Contains(lowerSearch))
+                    {
+                        matchingCustomers.Add(c);
+                    }
+                }
+            }
         }
 
         else
@@ -194,34 +195,34 @@
     public void RemoveCustomer(int CustomerID)
     {
 
-	    Customer customerToRemove = null;
+        Customer customerToRemove = null;
 
-	    // Check if list is not empty
-	    if (allCustomers.Count > 0)
-	    {
-		    // Find the category by categoryID
-		    foreach (Customer c in allCustomers)
-		    {
-			    if (c.CustomerID == CustomerID)
-			    {
-				    // Put it in an object
-				    customerToRemove = c;
-				    break;
-			    }
-		    }
+        // Check if list is not empty
+        if (Customer.AllCustomers.Count > 0)
+        {
+            // Find the category by categoryID
+            foreach (Customer c in Customer.AllCustomers)
+            {
+                if (c.CustomerID == CustomerID)
+                {
+                    // Put it in an object
+                    customerToRemove = c;
+                    break;
+                }
+            }
 
 
-		    // If there is an object inside do this.
-		    if (customerToRemove != null)
-		    {
-			    allCustomers.Remove(customerToRemove);
+            // If there is an object inside do this.
+            if (customerToRemove != null)
+            {
+                Customer.AllCustomers.Remove(customerToRemove);
 
-			    Storage.SaveToJsonSync(allCustomers, jsonFileName);
+                DataLoader.SaveAll(); // Save removed customer to the Customers.json
 
 			    formStatusClass = "text-success";
 			    formStatus = $"Customer {customerToRemove.FirstName} {customerToRemove.LastName} removed.";
 
-			    matchingCustomers = new List<Customer>(allCustomers);
+                matchingCustomers = new List<Customer>(Customer.AllCustomers);
 		    }
 		    // If the CATEGORIES are NOT FOUND
 		    else
@@ -250,7 +251,7 @@
     {
 	    customerID = "";
         searchText = "";
-	    matchingCustomers = new List<Customer>(allCustomers);
+	    matchingCustomers = new List<Customer>(Customer.AllCustomers);
 	    formStatus = "Search cleared.";
 	    formStatusClass = "text-primary";
     }
