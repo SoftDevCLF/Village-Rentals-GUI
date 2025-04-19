@@ -24,6 +24,7 @@ namespace VillageRentalsGUI.Data
             CategoryName = categoryName;
         }
 
+        // Provides a friendly string representation (e.g., "10, Power tools")
         public override string ToString()
         {
             return $"Category ID: {CategoryId}\n" +

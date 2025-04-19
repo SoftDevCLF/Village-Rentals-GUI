@@ -22,9 +22,7 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-        
-		// JSON Serializer
-        builder.Services.AddSingleton<JsonStorageService>();
+		DataLoader.LoadAll();
 
         return builder.Build();
 	}

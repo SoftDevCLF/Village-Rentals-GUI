@@ -1,0 +1,144 @@
+﻿@page "/addequipment"
+@using VillageRentalsGUI.Data
+@inject NavigationManager Nav
+
+<h3 class="mb-4">Add New Equipment</h3>
+<hr/>
+<div class="row">
+    <!-- Left column for form -->
+    <div class="col-md-6">
+        <p><strong>Enter New Equipment Details:</strong><br />
+            <span class="text-danger">*</span> Required</p>
+
+        <!-- Equipment Name input -->
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Equipment Name <span class="text-danger">*</span></label>
+            <div class="col-sm-8">
+                <input class="form-control" @bind="equipmentName" placeholder="Enter Equipment Name" />
+            </div>
+        </div>
+
+        <!-- Daily Rate input -->
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Daily Rate</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="number" step="0.01" @bind="dailyRate" placeholder="Enter Daily Rate" />
+            </div>
+        </div>
+
+        <!-- Description input -->
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Description</label>
+            <div class="col-sm-8">
+                <input class="form-control" @bind="description" placeholder="Enter Equipment Description" />
+            </div>
+        </div>
+
+        <!-- Dropdown to select a category -->
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Category <span class="text-danger">*</span></label>
+            <div class="col-sm-8">
+                <select class="form-select w-100" style="max-width: 100%;" @bind="selectedCategory">
+                    <option disabled selected value="">Select Category</option>
+                    @* @foreach (Category category in Category.AllCategories) // LOUIE TO FIX *@
+                    @* { *@
+                    @*         <option value="@category.CategoryID.ToString()"> *@
+                    @*         @($"{category.CategoryID.ToString().PadRight(5)} - {category.CategoryName}") *@
+                    @*         </option> *@
+                    @* } *@
+                </select>
+            </div>
+        </div>
+
+        <!-- Conditional button block -->
+        <div class="text-start">
+            @if (!isSubmitted)
+            {
+                    <!-- Button to submit the form -->
+                    <button class="btn btn-primary" @onclick="SubmitEquipment">Add New Equipment</button>
+            }
+            else
+            {
+                    <!-- Buttons to reset or go back after submission -->
+                    <button class="btn btn-success me-2" @onclick="ResetForm">Add Another Equipment</button>
+                    <button class="btn btn-secondary" @onclick="@(() => Nav.NavigateTo("/inventorygui"))">Go Back to Inventory</button>
+            }
+        </div>
+    </div>
+
+    <!-- Right column to show summary if equipment was added -->
+    @if (isSubmitted)
+    {
+            <div class="col-md-6">
+                <div class="alert alert-success">
+                    <strong>Equipment Added!</strong>
+                </div>
+
+                <table class="table w-auto">
+                    <tr><td><strong>Equipment ID:</strong></td><td>@addedEquipment?.EquipmentID</td></tr>
+                    <tr><td><strong>Equipment Name:</strong></td><td>@addedEquipment?.EquipmentName</td></tr>
+                    <tr><td><strong>Daily Rate:</strong></td><td>@addedEquipment?.DailyRentalCost</td></tr>
+                    <tr><td><strong>Category:</strong></td><td>@addedEquipment?.Category?.CategoryName</td></tr>
+                @* <tr><td><strong>Category ID:</strong></td><td>@addedEquipment?.Category?.CategoryID</td></tr> // LOUIE TO FIX *@
+                </table>
+            </div>
+    }
+</div>
+
+@code {
+    // Form fields
+    private string equipmentName = "";
+    private double dailyRate;
+    private string description = "";
+    private string selectedCategory = "";
+    // private List<Category> categories = Category.AllCategories; // LOUIE TO FIX
+
+    // State tracking
+    private Equipment? addedEquipment;
+    private bool isSubmitted = false;
+
+    // Handles the form submission
+    private void SubmitEquipment()
+    {
+        // Validation: ensure required fields are filled
+        if (string.IsNullOrWhiteSpace(equipmentName) || string.IsNullOrWhiteSpace(selectedCategory))
+            return;
+
+        // Parse category ID // LOUIE TO FIX
+        int categoryId = int.TryParse(selectedCategory, out int parsed) ? parsed : 0;
+        // Category? category = categories.FirstOrDefault(c => c.CategoryID == categoryId);
+        // if (category == null) return;
+
+        // Generate a new ID based on category grouping // LOUIE TO FIX
+        // int countInCategory = Equipment.AllEquipment.Count(e => e.Category.CategoryID == category.CategoryID);
+        // int newId = category.CategoryID * 10 + (countInCategory + 1);
+
+        // Add the new item to the inventory // LOUIE TO FIX
+        // InventoryManager.AddInventoryItem(
+        //     newId,
+        //     category.CategoryID,
+        //     category.CategoryName,
+        //     equipmentName,
+        //     description,
+        //     dailyRate
+        // );
+
+        // Save to JSON file
+        DataLoader.SaveAll();
+
+        // Store for confirmation display // LOUIE TO FIX
+        // addedEquipment = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == newId);
+        isSubmitted = true;
+    }
+
+    // Clears the form to allow adding another item
+    private void ResetForm()
+    {
+        equipmentName = "";
+        dailyRate = 0;
+        description = "";
+        selectedCategory = "";
+        addedEquipment = null;
+        isSubmitted = false;
+    }
+}
