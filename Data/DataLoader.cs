@@ -9,24 +9,25 @@ namespace VillageRentalsGUI.Data
 {
     public static class DataLoader
     {
+        // Load all data from JSON files located in the app's local project folder under Data/Json
         public static void LoadAll()
         {
-            string basePath = @"C:\Louie\SAIT SD\CPSY 200 F Software\Village-Rentals-GUI\Data\Json";
-            // The paths are not working in the actual Data/Json. I gave up and hardcoded lol
-            //string basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\..\Data\Json"));
+            // Construct a dynamic, cross-platform path relative to the executable's base directory
+            string basePath = Path.Combine(AppContext.BaseDirectory, "Data", "Json");
 
-
+            // Define full paths to each file
             string customerPath = Path.Combine(basePath, "Customers.json");
             string categoryPath = Path.Combine(basePath, "Categories.json");
             string equipmentPath = Path.Combine(basePath, "Equipments.json");
             string rentalPath = Path.Combine(basePath, "Rentals.json");
 
-            List<Category> loadedCategories = JsonStorageServices.LoadFromJsonSync<Category>("Categories.json");
-            List<Equipment> loadedEquipment = JsonStorageServices.LoadFromJsonSync<Equipment>("Equipments.json");
-            List<Customer> loadedCustomers = JsonStorageServices.LoadFromJsonSync<Customer>("Customers.json");
-            List<Rental> loadedRentals = JsonStorageServices.LoadFromJsonSync<Rental>("Rentals.json");
+            // Load data from each file
+            List<Category> loadedCategories = JsonStorageServices.LoadFromJsonSync<Category>(categoryPath);
+            List<Equipment> loadedEquipment = JsonStorageServices.LoadFromJsonSync<Equipment>(equipmentPath);
+            List<Customer> loadedCustomers = JsonStorageServices.LoadFromJsonSync<Customer>(customerPath);
+            List<Rental> loadedRentals = JsonStorageServices.LoadFromJsonSync<Rental>(rentalPath);
 
-
+            // Populate in-memory lists
             Category.categoryList.Clear();
             Category.categoryList.AddRange(loadedCategories);
 
@@ -42,16 +43,18 @@ namespace VillageRentalsGUI.Data
             RebuildEquipmentCategoryReferences();
         }
 
+        // Save all in-memory data to their respective JSON files
         public static void SaveAll()
         {
-            JsonStorageServices.SaveToJsonSync(Customer.AllCustomers, "Customers.json");
-            JsonStorageServices.SaveToJsonSync(Category.categoryList, "Categories.json");
-            JsonStorageServices.SaveToJsonSync(Equipment.AllEquipment, "Equipments.json");
-            JsonStorageServices.SaveToJsonSync(Rental.rentalsList, "Rentals.json");
+            string basePath = Path.Combine(AppContext.BaseDirectory, "Data", "Json");
 
-
+            JsonStorageServices.SaveToJsonSync(Customer.AllCustomers, Path.Combine(basePath, "Customers.json"));
+            JsonStorageServices.SaveToJsonSync(Category.categoryList, Path.Combine(basePath, "Categories.json"));
+            JsonStorageServices.SaveToJsonSync(Equipment.AllEquipment, Path.Combine(basePath, "Equipments.json"));
+            JsonStorageServices.SaveToJsonSync(Rental.rentalsList, Path.Combine(basePath, "Rentals.json"));
         }
 
+        // Reconnect category references after loading equipment
         private static void RebuildEquipmentCategoryReferences()
         {
             foreach (var equipment in Equipment.AllEquipment)
