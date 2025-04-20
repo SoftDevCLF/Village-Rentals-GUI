@@ -5,7 +5,7 @@
 
 h1 {
     font-weight: 200;
-    line-spacing: 120%;
+    line-height: 120%;
 }
 
 a, .btn-link {
@@ -20,7 +20,7 @@ a, .btn-link {
 
 .btn-secondary {
     color: #fff;
-    background-color: 801F4F;
+    background-color: #801F4F;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {

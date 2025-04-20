@@ -1,6 +1,8 @@
 ﻿@page "/addcategorygui"
 @using System.Text.Json
 @using VillageRentalsGUI.Data
+@inject NavigationManager Navigation
+
 
 <h1>Add New Category</h1>
 <hr />
@@ -8,7 +10,7 @@
 	<div class="row">
 
 		<!-- Form Section -->
-		<div class="col col-md-7">
+		<div class="col col-md-6">
 			Enter new category details:
 			<p class="text-danger">* <i class="text-dark">Required</i></p>
 
@@ -34,7 +36,7 @@
 					{
 						<!-- Buttons to reset or go back after submission -->
 						<button class="btn btn-success me-2" @onclick="ResetForm">Add Another Category</button>
-						<a href="/categorygui"><button class="btn btn-secondary">Go Back to Category</button></a>
+						<button class="btn btn-secondary" @onclick="GoToCategoriesPage">Go Back to Category</button>
 					}
 					
 
@@ -220,6 +222,12 @@
 
 	}
 
+
+	// Navigation Methods
+	private void GoToCategoriesPage()
+	{
+		Navigation.NavigateTo("/categorygui");
+	}
 	
 
 }

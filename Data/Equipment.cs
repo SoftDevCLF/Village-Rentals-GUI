@@ -18,6 +18,10 @@ namespace VillageRentalsGUI.Data
         private string _equipmentDescription;
         private double _dailyRentalCost;
 
+        // Adding for Rentals GUI Add Page need
+        public int CategoryId { get; set; }
+        
+
         // Public property for Equipment ID with getter and setter
         public int EquipmentID { get => _equipmentID; set => _equipmentID = value; }
 
@@ -36,7 +40,20 @@ namespace VillageRentalsGUI.Data
         // Default constructor for deserialization and general instantiation
         public Equipment() { }
 
-        // Constructor to create a new equipment item with required fields
+        // Serialize Category ID for Rentals to pick it up
+
+            public static void Initialize()
+            {
+                foreach (var eq in AllEquipment)
+                {
+                    // Auto-patch CategoryId from deserialized Category
+                    if (eq.Category != null)
+                        eq.CategoryId = eq.Category.CategoryId;
+                }
+            }
+ 
+
+        // Constructor to create a new equipment item with required fields (V1)
         public Equipment(int equipmentID, Category category, string equipmentName, string equipmentDescription, double dailyRentalCost)
         {
             // Prevent duplicate equipment entries based on ID
@@ -46,6 +63,9 @@ namespace VillageRentalsGUI.Data
             // Set properties using constructor parameters
             _equipmentID = equipmentID;
             Category = category;
+
+            CategoryId = category?.CategoryId ?? 0; // <- this is critical
+
             _equipmentName = equipmentName;
             _equipmentDescription = equipmentDescription;
             _dailyRentalCost = dailyRentalCost;

@@ -19,19 +19,25 @@ namespace VillageRentalsGUI.Data
             string customerPath = Path.Combine(basePath, "Customers.json");
             string categoryPath = Path.Combine(basePath, "Categories.json");
             string equipmentPath = Path.Combine(basePath, "Equipments.json");
+            string rentalPath = Path.Combine(basePath, "Rentals.json");
 
-            List<Category> categoryList = JsonStorageServices.LoadFromJsonSync<Category>("Categories.json");
+            List<Category> loadedCategories = JsonStorageServices.LoadFromJsonSync<Category>("Categories.json");
             List<Equipment> loadedEquipment = JsonStorageServices.LoadFromJsonSync<Equipment>("Equipments.json");
-            List<Customer> customersList = JsonStorageServices.LoadFromJsonSync<Customer>("Customers.json");
+            List<Customer> loadedCustomers = JsonStorageServices.LoadFromJsonSync<Customer>("Customers.json");
+            List<Rental> loadedRentals = JsonStorageServices.LoadFromJsonSync<Rental>("Rentals.json");
+
 
             Category.categoryList.Clear();
-            Category.categoryList.AddRange(categoryList);
+            Category.categoryList.AddRange(loadedCategories);
 
             Equipment.AllEquipment.Clear();
             Equipment.AllEquipment.AddRange(loadedEquipment);
 
             Customer.AllCustomers.Clear();
-            Customer.AllCustomers.AddRange(customersList);
+            Customer.AllCustomers.AddRange(loadedCustomers);
+
+            Rental.rentalsList.Clear();
+            Rental.rentalsList.AddRange(loadedRentals);
 
             RebuildEquipmentCategoryReferences();
         }
@@ -41,6 +47,9 @@ namespace VillageRentalsGUI.Data
             JsonStorageServices.SaveToJsonSync(Customer.AllCustomers, "Customers.json");
             JsonStorageServices.SaveToJsonSync(Category.categoryList, "Categories.json");
             JsonStorageServices.SaveToJsonSync(Equipment.AllEquipment, "Equipments.json");
+            JsonStorageServices.SaveToJsonSync(Rental.rentalsList, "Rentals.json");
+
+
         }
 
         private static void RebuildEquipmentCategoryReferences()

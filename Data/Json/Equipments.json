@@ -1,5 +1,6 @@
 [
   {
+    "CategoryId": 10,
     "EquipmentID": 101,
     "Category": {
       "CategoryId": 10,
@@ -10,6 +11,7 @@
     "DailyRentalCost": 25.99
   },
   {
+    "CategoryId": 20,
     "EquipmentID": 201,
     "Category": {
       "CategoryId": 20,
@@ -20,6 +22,7 @@
     "DailyRentalCost": 49.99
   },
   {
+    "CategoryId": 20,
     "EquipmentID": 202,
     "Category": {
       "CategoryId": 20,
@@ -30,6 +33,7 @@
     "DailyRentalCost": 19.99
   },
   {
+    "CategoryId": 30,
     "EquipmentID": 301,
     "Category": {
       "CategoryId": 30,
@@ -40,6 +44,7 @@
     "DailyRentalCost": 14.99
   },
   {
+    "CategoryId": 50,
     "EquipmentID": 501,
     "Category": {
       "CategoryId": 50,

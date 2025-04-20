@@ -13,12 +13,25 @@
     <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/addequipment")'>Add New Equipment</button>
 </div>
 
-<!-- Search form -->
-<form @onsubmit="Search">
+<!-- Search form V2-->
+@*<div class="input-group mb-3 w-50">
+	<input class="form-control" placeholder="Search by Equipment Name" @bind="searchTerm" />
+	<button class="btn btn-primary" @onclick="Search">Search</button>
+
+	<span class="clear-link ms-2 align-items-center h-100">
+		<a href="#" class="link-secondary align-middle" @onclick="ClearSearch" @onclick:preventDefault="true">Clear</a>
+	</span>
+</div>*@
+<!-- Search form V1-->
+<form @onsubmit="Search" @onsubmit:preventDefault="true"> @*Updated this to prevent default form behavior*@
     <div class="input-group mb-3 w-50">
         <!-- Search input bound to searchTerm -->
         <input class="form-control" placeholder="Search by Equipment Name" @bind="searchTerm" />
         <button class="btn btn-primary" type="submit">Search</button>
+        <!-- Clear Search-->
+        <span class="clear-link ms-2 align-items-center h-100">
+            <a href="#" class="link-secondary align-middle" @onclick="ClearSearch" @onclick:preventDefault="true">Clear</a>
+        </span>
     </div>
 </form>
 <p class="@formStatusClass">@formStatus</p>
@@ -118,14 +131,15 @@
     // Added form status when nothing is entere;
     private void Search()
     {
-	    if (string.IsNullOrWhiteSpace(searchTerm))
-	    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+	        formStatus = "Please Add An Equipment Name to Search";
+            formStatusClass = "text-danger";
+        
+        }
 
-		    formStatus = "Please Add An Equipment Name to Search";
-		    formStatusClass = "text-danger";
-		    Filter();
-	    }
 
+        Filter(); // Always call Filter after updating search
 
     }
 
@@ -149,7 +163,7 @@
     // Removes an equipment item and updates the JSON and UI
     private void Remove(int equipmentID)
     {
-	    Equipment? equipmentToRemove = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == equipmentID);
+        Equipment? equipmentToRemove = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == equipmentID);
         InventoryManager.RemoveInventoryItem(equipmentID); // Remove from memory
         DataLoader.SaveAll();                              // Save changes to JSON
         Filter();                                           // Refresh displayed list
@@ -157,6 +171,16 @@
         formStatus = $"Equipment '{equipmentToRemove.EquipmentName}' (ID: {equipmentID}) removed.";
         formStatusClass = "text-success";
     }
+
+    // CLEAR SEARCH
+    private void ClearSearch()
+    {
+	    searchTerm = "";
+	    Filter(); // Re-applies availability filter logic
+        formStatus = "Search cleared.";
+        formStatusClass = "text-primary";
+    }
+
 
     // Navigates to the Update Equipment page with selected ID
     private void GoToUpdatePage(int equipmentID)

@@ -21,20 +21,10 @@ namespace VillageRentalsGUI.Data
         public bool IsBanned { get; set; }  // This is a public auto-property now
         public double Discount { get; set; }
 
-        //[JsonIgnore] // 🔥 this is what prevents serialization errors
-        public List<Rental> Rentals { get; set; } = new();
+        //public List<Rental> Rentals { get; set; } = new(); Removing this because Rental will live on Rentals page.
 
-        //public List<Rental> Rentals { get; set; } = new List<Rental>(); //Louie: Why need a rental list now, this should be in the rental part?
 
         public Customer() { } // Required for JSON serialization
-
-
-        //static Customer()
-        //{
-        //    new Customer(1001, "Doe", "John", "jd@sample.net", "(555)555-1212");
-        //    new Customer(1002, "Smith", "Jane", "js@live.com", "(555)555-3434");
-        //    new Customer(1003, "Lee", "Michael", "ml@sample.net", "(555)555-5656");
-        //}
 
         public Customer(int customerID, string lastName, string firstName, string email, string phoneNumber, bool isBanned=false, double discount=0, bool autoAdd = true)
         {

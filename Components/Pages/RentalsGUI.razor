@@ -7,71 +7,65 @@
 <h1>Rental Management</h1>
 <hr>
 <div class="mb-4">
-	<a href="/rentals"><button class="btn btn-secondary btn-active">View All Rentals</button></a>
-	<a href="/addrental"><button class="btn btn-primary">Add New Rental</button></a>
+	<button class="btn btn-secondary btn-active" @onclick="GoToAllRentalsPage">View All Rentals</button>
+	<button class="btn btn-primary" @onclick="GoToAddRentalPage">Add New Rental</button>
 </div>
 
-@* Search Field*@
+<!-- Search -->
 
-<form>
-	
-	<div class="input-group mb-3">
-		<input class="border rounded-1 w-50 ps-3" placeholder="Search..."/>
+<form @onsubmit="SearchSubmit">
+	<div class="input-group mb-3 h-100">
+		<input class="border rounded-1 w-50 ps-3" @bind="searchText" placeholder="Search rentals..." />
 		<button class="btn btn-primary">Search</button>
+		<span class="clear-link ms-2 align-items-center h-100">
+			<a href="#" class="link-secondary align-middle" @onclick="ClearSearch" @onclick:preventDefault="true">Clear</a>
+		</span>
 	</div>
-
-	@*replace search equipment, add @onsubmit="#" inside*@
-	@*
-	@if (searchCriteria == "ID")
-	{
-		<div class="input-group mb-3">
-			<input class="border rounded-1 w-50 ps-3" placeholder="ID" @bind="customerID" />
-			<button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
-		</div>
-	}
-	else if (searchCriteria == "LastName")
-	{
-		<div class="input-group mb-3">
-			<input class="border rounded-1 w-50 ps-3" placeholder="Last Name" @bind="customerLastName" />
-			<button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
-		</div>
-	}
-*@
-
 </form>
 
+
+<p class="@formStatusClass">@formStatus</p>
 <p class="mt-2">Search Results</p>
+
+
 
 @* Table *@
 
 <div class="container">
 	<div class="row">
-		
-		@* Table *@
-
-		<div class="align-middle">
-			<table class="table">
+		<div class="col-sm-12 align-middle">
+			<table class="table align-middle">
 				<thead>
-				<tr >
-					<th class="text-primary border-secondary">Rental ID</th>
-					<th class="text-primary border-secondary">Date Created</th>
-
-					<th class="text-primary border-secondary">Cst ID</th>
-					<th class="text-primary border-secondary w-20">Cst Name</th>
-					
-					<th class="text-primary border-secondary">Eq ID</th>
-					<th class="text-primary border-secondary w-15">Eq Name</th>
-					
-					<th class="text-primary border-secondary">Rental Date</th>
-					<th class="text-primary border-secondary">Return Date</th>
-
-					<th class="text-primary border-secondary">Cost</th>
-					<th class="text-primary border-secondary">Actions</th>
-				</tr>
+					<tr>
+						<th class="text-primary border-secondary">Rental ID</th>
+						<th class="text-primary border-secondary">Date Created</th>
+						<th class="text-primary border-secondary">Cst ID</th>
+						<th class="text-primary border-secondary">Cst Name</th>
+						<th class="text-primary border-secondary">Eq Name</th>
+						<th class="text-primary border-secondary">Rental Date</th>
+						<th class="text-primary border-secondary">Return Date</th>
+						<th class="text-primary border-secondary">Cost</th>
+						<th class="text-primary border-secondary">Actions</th>
+					</tr>
 				</thead>
 				<tbody>
-
-
+					@foreach (var rental in searchResults)
+					{
+						<tr class="table-hover">
+							<td>@rental.RentalID</td>
+							<td>@rental.DateCreated.ToShortDateString()</td>
+							<td>@rental.CustomerId</td>
+							<td>@rental.CustomerFirstName @rental.CustomerLastName</td>
+							<td>@rental.EquipmentName</td>
+							<td>@rental.RentalDate.ToShortDateString()</td>
+							<td>@rental.ReturnDate.ToShortDateString()</td>
+							<td>@rental.TotalCost.ToString("C")</td>
+							<td>
+								<button class="btn btn-info btn-sm" @onclick="() => GoToUpdateRentalPage(rental.RentalID)">Update</button>
+								<button class="btn btn-danger btn-sm" @onclick="() => RemoveRental(rental.RentalID)">Remove</button>
+							</td>
+						</tr>
+					}
 				</tbody>
 			</table>
 		</div>
@@ -81,12 +75,82 @@
 
 
 @code {
+	public string formStatus = "";
+	public string formStatusClass = "text-primary";
+	public string searchText = "";
 
-	// 
-	// private void GoToAllCustomersPage()
-	// {
-	// 	Navigation.NavigateTo("/allcustomers");
-	// }
+	public List<Rental> allRentals => Rental.rentalsList;
+	public List<Rental> searchResults = new();
+
+	protected override void OnInitialized()
+	{
+		searchResults = new List<Rental>(allRentals);
+	}
+
+
+	public void SearchSubmit() => SearchRental();
+
+	public void SearchRental()
+	{
+		if (string.IsNullOrWhiteSpace(searchText))
+		{
+			searchResults = new List<Rental>(allRentals);
+			formStatus = "Showing all rentals";
+			return;
+		}
+
+		searchResults = allRentals.Where(r =>
+			r.RentalID.ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+			r.CustomerFirstName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+			r.CustomerLastName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+			r.EquipmentName.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+		).ToList();
+
+		formStatus = $"Found {searchResults.Count} result(s)";
+	}
+
+	public void ClearSearch()
+	{
+		searchText = "";
+		searchResults = new List<Rental>(allRentals);
+		formStatus = "Search cleared.";
+	}
+
+	public void RemoveRental(int id)
+	{
+		var toRemove = allRentals.FirstOrDefault(r => r.RentalID == id);
+		if (toRemove != null)
+		{
+			allRentals.Remove(toRemove);
+			DataLoader.SaveAll();
+			formStatus = $"Rental {id} removed.";
+			ClearSearch();
+		}
+	}
+
+
+	// Navigation actions
+	private void GoToAllRentalsPage()
+	{
+		Navigation.NavigateTo("/allrentalsgui");
+	}
+
+	private void GoToAddRentalPage()
+	{
+		Navigation.NavigateTo("/addrental");
+	}
+
+
+	private void GoToUpdateRentalPage()
+	{
+		Navigation.NavigateTo("/updaterental");
+	}
+
+	private void GoToUpdateRentalPage(int id)
+	{
+		Navigation.NavigateTo($"/updaterental/{id}");
+	}
+
 
 }
 

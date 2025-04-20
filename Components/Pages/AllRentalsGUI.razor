@@ -1,0 +1,75 @@
+﻿@page "/allrentalsgui"
+@using VillageRentalsGUI.Data
+@inject NavigationManager Navigation
+
+@* Header Area*@
+<h1>AllRentalsGUI</h1>
+<hr/>
+<div class="mb-4">
+	<button class="btn btn-secondary btn-primary" @onclick="GoToRentalsPage">Go back to Rentals Page</button>
+</div>
+
+@* Table *@
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm-12 align-middle">
+			<table class="table align-middle">
+				<thead>
+				<tr>
+					<th class="text-primary border-secondary">Rental ID</th>
+					<th class="text-primary border-secondary">Date Created</th>
+					<th class="text-primary border-secondary">Cst ID</th>
+					<th class="text-primary border-secondary">Cst Name</th>
+					<th class="text-primary border-secondary">Eq Name</th>
+					<th class="text-primary border-secondary">Rental Date</th>
+					<th class="text-primary border-secondary">Return Date</th>
+					<th class="text-primary border-secondary">Cost</th>
+				</tr>
+				</thead>
+				<tbody>
+				<!--Add a fallback message-->
+				@if (!searchResults.Any())
+				{
+					<tr>
+						<td colspan="8" class="text-muted">No rentals found.</td>
+					</tr>
+				}
+				@foreach (var rental in searchResults)
+				{
+					<tr class="table-hover">
+						<td>@rental.RentalID</td>
+						<td>@rental.DateCreated.ToShortDateString()</td>
+						<td>@rental.CustomerId</td>
+						<td>@rental.CustomerFirstName @rental.CustomerLastName</td>
+						<td>@rental.EquipmentName</td>
+						<td>@rental.RentalDate.ToShortDateString()</td>
+						<td>@rental.ReturnDate.ToShortDateString()</td>
+						<td>@rental.TotalCost.ToString("C")</td>
+					</tr>
+				}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+
+@code {
+	public List<Rental> allRentals => Rental.rentalsList;
+	public List<Rental> searchResults = new();
+
+	// On INITIALIZATION
+	protected override void OnInitialized()
+	{
+		DataLoader.LoadAll(); // Load JSON files
+		searchResults = new List<Rental>(allRentals); // Fill from static list
+	}
+
+	// Navigation Methods
+	private void GoToRentalsPage()
+	{
+		Navigation.NavigateTo("/rentalsgui");
+	}
+
+}

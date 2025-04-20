@@ -6,8 +6,7 @@
     "Email": "jd@sample.net",
     "PhoneNumber": "(555)555-1212",
     "IsBanned": false,
-    "Discount": 0,
-    "Rentals": []
+    "Discount": 0
   },
   {
     "CustomerID": 1002,
@@ -16,8 +15,7 @@
     "Email": "js@live.com",
     "PhoneNumber": "(555)555-3434",
     "IsBanned": false,
-    "Discount": 0,
-    "Rentals": []
+    "Discount": 0
   },
   {
     "CustomerID": 1003,
@@ -26,8 +24,7 @@
     "Email": "ml@sample.net",
     "PhoneNumber": "(555)555-5656",
     "IsBanned": false,
-    "Discount": 20,
-    "Rentals": []
+    "Discount": 20
   },
   {
     "CustomerID": 1004,
@@ -36,7 +33,6 @@
     "Email": "dr@live.com",
     "PhoneNumber": "(555)555-5555",
     "IsBanned": true,
-    "Discount": 0,
-    "Rentals": []
+    "Discount": 0
   }
 ]
