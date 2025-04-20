@@ -1,228 +1,269 @@
 ﻿@page "/reportsgui"
-@using Data
+@using VillageRentalsGUI.Data
 
 <h1>Reports</h1>
-<hr/>
+<hr />
+<p>Sales by Date, by Customer ID, or Category</p>
 
-<p>Sales by date, by customer and categories</p>
-
-
-
+<!-- Search Filters Section -->
 <div class="container">
 	<div class="row">
-		<div class="col-6 col-md-4">
-			<p>Search by</p>
+		<!-- Left column: Search Options -->
+		<div class="col-4">
+			<p>Search by:</p>
 			@foreach (var option in searchOptions)
 			{
-				<div>
-					<input type="radio"
-						   name="search"
-						   value="@option"
-						   checked="@(searchType == option)"
-						   @onchange="() => OnSearchTypeChanged(option)" />
-					<label>@option</label>
-				</div>
+					<div>
+						<input type="radio"
+							   name="search"
+							   value="@option"
+							   checked="@(searchType == option)"
+							   @onchange="() => OnSearchTypeChanged(option)" />
+						<label>@option</label>
+					</div>
 			}
-
 		</div>
-		<div class="col-md-8 border-start">
+
+		<!-- Right column: Input Form -->
+		<div class="col-8 border-start">
 			@if (searchType == "Date")
 			{
-				<form>
-					<div class="input-group mb-3">
-						<input class="border rounded-1 w-50 ps-3" placeholder="YYYY-MM-DD" @bind="date" />
-						<button class="btn btn-primary" @onclick="() => SearchByDate(date)">Search</button>
-					</div>
-				</form>
+					<form @onsubmit="SearchByDate" @onsubmit:preventDefault="true">
+						<div class="input-group mb-3">
+							<input class="form-control" placeholder="YYYY-MM-DD" @bind="date" />
+							<button class="btn btn-primary" type="submit">Search</button>
+						</div>
+					</form>
 			}
 			else if (searchType == "Customer ID")
 			{
-				<form>
-					<div class="input-group mb-3">
-						<input class="border rounded-1 w-50 ps-3" placeholder="Customer ID" @bind="customerID" />
-						<button class="btn btn-primary" @onclick="() => SearchByID(customerID)">Search</button>
-					</div>
-				</form>
-
+					<form @onsubmit="SearchByID" @onsubmit:preventDefault="true">
+						<div class="input-group mb-3">
+							<input class="form-control" placeholder="Customer ID" @bind="customerID" />
+							<button class="btn btn-primary" type="submit">Search</button>
+						</div>
+					</form>
 			}
 			else if (searchType == "Category")
 			{
-				<form>
-					<div class="input-group mb-3">
-						<input class="border rounded-1 w-50 ps-3" placeholder="Category Name" @bind="categoryName" />
-						<button class="btn btn-primary" @onclick="() => SearchByCategory(categoryName)">Search</button>
-					</div>
-				</form>
+					<form @onsubmit="SearchByCategory" @onsubmit:preventDefault="true">
+						<div class="input-group mb-3">
+							<input class="form-control" placeholder="Category ID or Category Name" @bind="categoryName" />
+							<button class="btn btn-primary" type="submit">Search</button>
+						</div>
+					</form>
 			}
-			else
+
+			@if (!string.IsNullOrWhiteSpace(formStatus))
 			{
-				<p>Please select a search type.</p>
+					<p class="@formStatusClass mt-2">@formStatus</p>
 			}
-
-
-
 		</div>
-
 	</div>
 </div>
 
-<hr/>
+<hr />
+<p>Search Results</p>
 
+<!-- Results -->
+<div class="container">
+	<div class="row">
+		<div class="col-sm-12 align-middle">
 
-
-<div>Search Results</div>
-
-
-
-@if (searchType == "Customer ID" && matchingCustomers.Any())
-{
-	<h4>Customer ID: @matchingCustomers[0].CustomerID</h4>
-	<h4>First Name: @matchingCustomers[0].FirstName</h4>
-	<h4>Last Name: @matchingCustomers[0].LastName</h4>
-	<br />
-	<h4>Total Sales: @totalSales</h4>
-	<h5>Rental History:</h5>
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Rental ID</th>
-				<th>Rental Date</th>
-				<th>Total Cost</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var rental in rentalHistory)
+			@if (searchType == "Customer ID" && matchingCustomers.Any())
 			{
-				<td>@rental.RentalID</td>
-				<td>@rental.RentalDate.ToShortDateString()</td>
-				<td>@rental.TotalCost</td>
-			}
-					
-		</tbody>
-		
-	</table>
-}
+					<h5><strong>Customer ID:</strong> @matchingCustomers[0].CustomerID</h5>
+					<h5><strong>Name:</strong> @matchingCustomers[0].FirstName @matchingCustomers[0].LastName</h5>
+						<h5 class="text-primary"><strong>Total Sales:</strong> @totalSales.ToString("C")</h5>
 
-else if (searchType == "Category" && matchingCategories.Any())
-{
-	<h3>Matching Categories:</h3>
-	
-	@foreach (var category in matchingCategories)
-	{
-		<div class="container text-center">
-			<div class="row row-cols-2">
-				<div class="col">Category ID</div>
-				<div class="col">Categpory Name</div>
-				<div class="col">@category.CategoryID</div>
-				<div class="col">@category.CategoryName</div>
-			</div>
-		</div>
-			
-	}
-	
-}
-else if (searchType == "Date" && matchingRentals.Any())
-{
-	<h3>Rentals on @formattedDate:</h3>
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Rental ID</th>
-				<th>Rental Date</th>
-				<th>Customer ID</th>
-				<th>Customer Name</th>
-				<th>Equipment</th>
-				<th>Return Date</th>
-				<th>Total Cost</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var rental in matchingRentals)
-			{
-				<tr>
-					<td>@rental.RentalID</td>
-					<td>@rental.RentalDate.ToString("MM/dd/yyyy")</td>
-					<td>@rental.Customer.CustomerID</td>
-					<td>@rental.Customer.FirstName @rental.Customer.LastName</td>
-					<td>
-						@foreach (var equipment in rental.EquipmentList)
+					<table class="table align-middle">
+						<thead>
+								<tr class="text-primary">
+								<th>Rental ID</th>
+								<th>Rental Date</th>
+								<th>Total Cost</th>
+							</tr>
+						</thead>
+						<tbody>
+						@if (!rentalHistory.Any())
 						{
-							<div>@equipment.EquipmentID - @equipment.EquipmentName</div>
+									<tr><td colspan="3" class="text-muted">No rentals found.</td></tr>
 						}
-					</td>
-					<td>@rental.ReturnDate.ToString("MM/dd/yyyy")</td>
-					<td>@rental.TotalCost.ToString("F2")</td>
-				</tr>
+						else
+						{
+							@foreach (var rental in rentalHistory)
+							{
+											<tr>
+												<td>@rental.RentalID</td>
+												<td>@rental.RentalDate.ToString("MM/dd/yyyy")</td>
+												<td>@rental.TotalCost.ToString("C")</td>
+											</tr>
+							}
+						}
+						</tbody>
+					</table>
 			}
-		</tbody>
-	</table>
-	<div><strong>Total Sales for @formattedDate: $@totalSales</strong></div>
-}
+			else if (searchType == "Category" && matchingCategories.Any())
+			{
+				<h5>Matching Categories</h5>
+				<table class="table align-middle">
+					<thead>
+						<tr class="text-primary">
+						<th>Category ID</th>
+						<th>Category Name</th>
+					</tr>
+					</thead>
+					<tbody>
+					@foreach (var category in matchingCategories)
+					{
+						<tr>
+							<td>@category.CategoryId</td>
+							<td>@category.CategoryName</td>
+						</tr>
+					}
+					</tbody>
+				</table>
 
-else
-{
-	<p>No results found.</p>
-}
+				@if (rentalsByCategory.Any())
+				{
+					<h5>Rentals for Matched Categories</h5>
+					<table class="table align-middle">
+						<thead>
+						<tr class="text-primary">
+							<th>Rental ID</th>
+							<th>Customer</th>
+							<th>Equipment</th>
+							<th>Rental Date</th>
+							<th>Return Date</th>
+							<th>Total Cost</th>
+						</tr>
+						</thead>
+						<tbody>
+						@foreach (var rental in rentalsByCategory)
+						{
+							<tr>
+								<td>@rental.RentalID</td>
+								<td>@rental.CustomerFirstName @rental.CustomerLastName</td>
+								<td>@rental.EquipmentName</td>
+								<td>@rental.RentalDate.ToString("MM/dd/yyyy")</td>
+								<td>@rental.ReturnDate.ToString("MM/dd/yyyy")</td>
+								<td>@rental.TotalCost.ToString("C")</td>
+							</tr>
+						}
+						</tbody>
+					</table>
 
+					<p class="text-primary"><strong>Total Category Sales: @totalSales.ToString("C")</strong></p>
+				}
+			}
 
-
+			else if (searchType == "Date" && matchingRentals.Any())
+			{
+					<h5>Rentals on @formattedDate</h5>
+					<table class="table align-middle">
+						<thead>
+								<tr class="text-primary">
+								<th>Rental ID</th>
+								<th>Customer</th>
+								<th>Equipment</th>
+								<th>Rental Date</th>
+								<th>Return Date</th>
+								<th>Total Cost</th>
+							</tr>
+						</thead>
+						<tbody>
+						@foreach (var rental in matchingRentals)
+						{
+									<tr>
+										<td>@rental.RentalID</td>
+										<td>@rental.CustomerFirstName @rental.CustomerLastName</td>
+										<td>@rental.EquipmentName</td>
+										<td>@rental.RentalDate.ToString("MM/dd/yyyy")</td>
+										<td>@rental.ReturnDate.ToString("MM/dd/yyyy")</td>
+										<td>@rental.TotalCost.ToString("C")</td>
+									</tr>
+						}
+						</tbody>
+					</table>
+					<p class="text-primary"><strong>Total Sales: @totalSales.ToString("C")</strong></p>
+			}
+			else
+			{
+					<p class="text-muted">No results found.</p>
+			}
+		</div>
+	</div>
+</div>
 
 @code {
-
-	int customerID;
-	List<string> searchOptions = new() { "Date", "Customer ID", "Category"};
+	List<string> searchOptions = new() { "Date", "Customer ID", "Category" };
+	List<Rental> rentalsByCategory = new();
 	string searchType = "Date";
-	string categoryName;
+
 	string date;
+	int customerID;
+	string categoryName;
+
+	List<Rental> rentalHistory = new();
+	List<Rental> matchingRentals = new();
+	List<Customer> matchingCustomers = new();
+	List<Category> matchingCategories = new();
+
+	string formStatus = "";
+	string formStatusClass = "text-muted";
+
 	DateTime parsedDate;
 	string formattedDate;
-	
-	// Rental history and total sales for the selected customer
-	List<Rental> rentalHistory = new List<Rental>();
 	double totalSales = 0;
 
-	List<Rental> matchingRentals = new List<Rental>();
-	List<Customer> matchingCustomers = new List<Customer>();
-	List<Category> matchingCategories = new List<Category>();
+	void OnSearchTypeChanged(string selected) => searchType = selected;
 
-	public void SearchByID(int customerID)
+	// Use helper methods from Reports.cs
+	void SearchByDate()
 	{
-		matchingCustomers.Clear(); // Clear previous search results
-
-		if (searchType == "Customer ID" && customerID != 0)
+		if (DateTime.TryParse(date, out parsedDate))
 		{
-			matchingCustomers = Customer.AllCustomers
-				.Where(c => c.CustomerID == customerID)
-				.ToList();
+			formattedDate = parsedDate.ToString("MM/dd/yyyy");
+			matchingRentals = Reports.GetRentalsByDate(parsedDate);
+			totalSales = matchingRentals.Sum(r => r.TotalCost);
+			formStatus = $"Found {matchingRentals.Count} rentals.";
+			formStatusClass = "text-success";
+		}
+		else
+		{
+			formStatus = "Invalid date format.";
+			formStatusClass = "text-danger";
 		}
 	}
 
-	public void SearchByCategory(string categoryName)
+	void SearchByID()
 	{
-		matchingCategories.Clear(); // Clear previous search results
+		matchingCustomers = Reports.GetCustomerById(customerID);
+		rentalHistory = Reports.GetRentalsByCustomer(customerID);
+		totalSales = rentalHistory.Sum(r => r.TotalCost);
 
-		if (!string.IsNullOrEmpty(categoryName))
+		formStatus = matchingCustomers.Any()
+			? $"Found {rentalHistory.Count} rentals."
+			: "No customer found.";
+		formStatusClass = matchingCustomers.Any() ? "text-success" : "text-danger";
+	}
+
+	void SearchByCategory()
+	{
+		matchingCategories = Reports.GetCategoriesByIdOrName(categoryName);
+		rentalsByCategory = new(); // reset
+
+		foreach (var cat in matchingCategories)
 		{
-			matchingCategories = Category.AllCategories
-				.Where(c => c.CategoryName == categoryName)
-				.ToList();
+			var rentals = Reports.GetRentalsByCategory(cat);
+			rentalsByCategory.AddRange(rentals);
 		}
-	}
 
-	public void SearchByDate(string startDate)
-	{
-		if (DateTime.TryParse(startDate, out parsedDate))
-		{
-			formattedDate = parsedDate.ToString("MM/dd/yyyy"); // Format date for display
-			matchingRentals = Reports.GetRentalsByDate(parsedDate);  // Get rentals for the given date
-			totalSales = Reports.SalesByDate(parsedDate);  // Calculate the total sales for the given date
-		}
-	}
+		totalSales = rentalsByCategory.Sum(r => r.TotalCost);
 
-	public void OnSearchTypeChanged(string selected)
-	{
-		searchType = selected;
+		formStatus = matchingCategories.Any()
+			? $"Found {matchingCategories.Count} category(s), {rentalsByCategory.Count} rentals."
+			: "No matching category.";
+		formStatusClass = matchingCategories.Any() ? "text-success" : "text-danger";
 	}
-
-	
 }

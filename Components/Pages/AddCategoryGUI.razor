@@ -1,0 +1,234 @@
+﻿@page "/addcategorygui"
+@using System.Text.Json
+@using VillageRentalsGUI.Data
+@inject NavigationManager Navigation
+
+
+<h1>Add New Category</h1>
+<hr />
+<div class="container">
+	<div class="row">
+
+		<!-- Form Section -->
+		<div class="col col-md-6">
+			Enter new category details:
+			<p class="text-danger">* <i class="text-dark">Required</i></p>
+
+			<!-- FORM - Inputs - Category Name -->
+
+			<form @onsubmit="CategorySubmit">
+
+				<div class="form-group row mb-3">
+					<label class="col-sm-3 col-form-label me-3">Category Name<i class="text-danger">*</i></label>
+					<div class="col-sm-4">
+						<input class="form-control ms-5" @bind="newCategoryName"/> 
+					</div>
+				</div>
+				
+				<!-- Conditional button block -->
+				<div class="text-start mb-2">
+					@if (!isSubmitted)
+					{
+						<!-- Button to submit the form -->
+						<button class="btn btn-primary mb-3 me-3" type="submit">Add New Category</button>
+					}
+					else
+					{
+						<!-- Buttons to reset or go back after submission -->
+						<button class="btn btn-success me-2" @onclick="ResetForm">Add Another Category</button>
+						<button class="btn btn-secondary" @onclick="GoToCategoriesPage">Go Back to Category</button>
+					}
+					
+
+				</div>
+
+			</form>
+			<p class="@formStatusClass">@formStatus</p>
+		</div>
+
+
+		<!-- SIDEBAR - SUCCESS -->
+		<div class="col col-md-3">
+			@if (successCategoryId > 0)
+			{
+				<table class="table">
+					<thead>
+						<tr class="mb-5">
+							<th class="p-3 bg-success bg-opacity-50 rounded-1 text-white fs-4 ">Category Added!</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="border rounded-3 mt-3 py-2 px-3">Category ID: @successCategoryId</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">Category Name: @successCategoryName</td>
+						</tr>
+					</tbody>
+				</table>
+
+			}
+		</div>
+
+
+	</div>
+
+</div>
+
+@code {
+
+	public string newCategoryName = "";
+	public int successCategoryId = 0;
+	public string successCategoryName;
+
+	// State Trackin
+	public string formStatus = "";
+	string formStatusClass = "text-danger"; // Red text in form status
+	private bool isSubmitted = false;
+
+
+	// List initialization
+	List<Category> categoryList => Category.categoryList; // Get the global list, get and return it.
+	// public List<Category> categoryList = new List<Category>();
+
+	// INITIALIZE JSON to load.
+	// Initialize the form with existing CATEGORY data
+	protected override void OnInitialized()
+	{
+		DataLoader.LoadAll(); // Load data from JSON - Loads all data into Category.categoryList
+	}
+
+
+	// FORM SUBMIT Method to call AddCategory()
+	public void CategorySubmit()
+	{
+		// formStatus update when nothing is entered
+		if (string.IsNullOrWhiteSpace(newCategoryName))
+		{
+
+			formStatus = "Please add a category name";
+			formStatusClass = "text-danger";
+			isSubmitted = false;
+			return;
+		}
+
+		AddCategory();
+		isSubmitted = true;
+	}
+
+	// Add New Category METHOD
+	public void AddCategory()
+	{
+		int newId;
+
+		// Check if list
+		// not empty
+
+		if (categoryList.Count > 0)
+		{
+			// Find the highest existing CategoryId
+			int maxId = 0;
+
+			foreach (Category c in categoryList)
+			{
+				if (c.CategoryId > maxId)
+				{
+					maxId = c.CategoryId;
+				}
+			}
+
+			newId = maxId + 10;
+		}
+		else
+		{
+			newId = 10;
+		}
+
+		// Remove extra spaces from the name
+		string trimmedCategoryName = newCategoryName.Trim();
+
+		// Create new category object
+		Category newCategory = new Category(newId, trimmedCategoryName);
+
+		// Add to the list.
+		categoryList.Add(newCategory);
+		DataLoader.SaveAll();
+
+
+		// Store ID and Name in object for sidebar display;
+		successCategoryId = newId;
+		successCategoryName = trimmedCategoryName;
+
+		// To restart
+		StateHasChanged();
+
+	}
+
+	// Remove Category (To be migrated to the category GUI)
+	public void RemoveCategory(int categoryId)
+	{
+
+		Category categoryToRemove = null;
+
+		// Check if list is not empty
+		if (categoryList.Count > 0)
+		{
+			// Find the category by categoryID
+			foreach (Category c in categoryList)
+			{
+				if (c.CategoryId == categoryId)
+				{
+					// Put it in an objectt
+					categoryToRemove = c;
+					break;
+				}
+			}
+
+
+			// If there is an object inside do this.
+			if (categoryToRemove != null)
+			{
+				categoryList.Remove(categoryToRemove);
+
+				DataLoader.SaveAll();
+
+				formStatus = $"Category {categoryToRemove.CategoryName} removed.";
+			}
+			// If the CATEGORIES are NOT FOUND
+			else
+			{
+				formStatus = "Category not found.";
+			}
+
+
+		}
+
+		// If there are NO CATEGORIES.
+		else
+		{
+			formStatus = "No categories to remove.";
+		}
+	}
+
+	// Clears the form to allow adding another item
+	private void ResetForm()
+	{
+		newCategoryName = "";
+		isSubmitted = false;
+		formStatus = "";
+		formStatusClass = "text-danger";
+		successCategoryId = 0;
+		successCategoryName = null;
+
+	}
+
+
+	// Navigation Methods
+	private void GoToCategoriesPage()
+	{
+		Navigation.NavigateTo("/categorygui");
+	}
+	
+
+}
+

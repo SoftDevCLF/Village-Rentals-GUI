@@ -1,7 +1,198 @@
 ﻿@page "/inventorygui"
+@using VillageRentalsGUI.Data
+@inject NavigationManager Nav
 
-<h3>Inventory</h3>
+<h1>Inventory</h1>
+<hr />
+
+<!-- Navigation buttons -->
+<div class="d-flex gap-2 mb-3">
+    <!-- Navigate to view all equipment -->
+    <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/viewequipment")'>View All Equipment</button>
+    <!-- Navigate to add new equipment -->
+    <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/addequipment")'>Add New Equipment</button>
+</div>
+
+<!-- Search form V2-->
+@*<div class="input-group mb-3 w-50">
+	<input class="form-control" placeholder="Search by Equipment Name" @bind="searchTerm" />
+	<button class="btn btn-primary" @onclick="Search">Search</button>
+
+	<span class="clear-link ms-2 align-items-center h-100">
+		<a href="#" class="link-secondary align-middle" @onclick="ClearSearch" @onclick:preventDefault="true">Clear</a>
+	</span>
+</div>*@
+<!-- Search form V1-->
+<form @onsubmit="Search" @onsubmit:preventDefault="true"> @*Updated this to prevent default form behavior*@
+    <div class="input-group mb-3 w-50">
+        <!-- Search input bound to searchTerm -->
+        <input class="form-control" placeholder="Search by Equipment Name" @bind="searchTerm" />
+        <button class="btn btn-primary" type="submit">Search</button>
+        <!-- Clear Search-->
+        <span class="clear-link ms-2 align-items-center h-100">
+            <a href="#" class="link-secondary align-middle" @onclick="ClearSearch" @onclick:preventDefault="true">Clear</a>
+        </span>
+    </div>
+</form>
+<p class="@formStatusClass">@formStatus</p>
+
+
+<div class="row">
+    <!-- Filter controls column -->
+    <div class="col-5 col-md-2">
+        <p>Filter:</p>
+        <div>
+            <!-- Radio to show all items -->
+            <input type="radio" name="availability" value="all"
+            checked="@IsAllSelected"
+            @onchange="@(e => availability = "all")" />
+            <label>Show All</label>
+        </div>
+        <div>
+            <!-- Radio to filter only available (non-zero cost) equipment -->
+            <input type="radio" name="availability" value="available"
+            checked="@IsAvailableSelected"
+            @onchange="@(e => availability = "available")" />
+            <label>By Availability</label>
+        </div>
+    </div>
+
+    <!-- Results display column -->
+    <div class="col-md-10 border-start">
+        <p>Search Results</p>
+
+        @if (filteredEquipment.Any())
+        {
+            <!-- Table of filtered equipment -->
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-primary border-secondary">ID</th>
+                        <th class="text-primary border-secondary">Equipment Name</th>
+                        <th class="text-primary border-secondary">Daily Rate</th>
+                        <th class="text-primary border-secondary">Category</th>
+                        <th class="text-primary border-secondary">Description</th>
+                        <th class="text-primary border-secondary">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Equipment item in filteredEquipment)
+                    {
+                        <tr>
+                            <td>@item.EquipmentID</td>
+                            <td>@item.EquipmentName</td>
+                            <td>@item.DailyRentalCost.ToString("C")</td>
+                            <td>@item.Category.CategoryName</td>
+                            <td>@item.EquipmentDescription</td>
+                            <td>
+                                <!-- Button to update selected equipment -->
+                                <button class="btn btn-sm btn-primary me-2"
+                                @onclick="() => GoToUpdatePage(item.EquipmentID)">
+                                    Update
+                                </button>
+
+                                <!-- Button to remove selected equipment -->
+                                <button class="btn btn-sm btn-danger"
+                                @onclick="() => Remove(item.EquipmentID)">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <!-- If no matching equipment -->
+            <p>No equipment found.</p>
+        }
+    </div>
+</div>
 
 @code {
+    // Stores the filtered equipment list to display
+    private List<Equipment> filteredEquipment = new();
 
+    // Search term from input box
+    private string searchTerm = "";
+
+    // Radio filter for availability
+    private string availability = "all";
+
+    // Helper property to check selected radio value
+    private bool IsAllSelected => availability == "all";
+    private bool IsAvailableSelected => availability == "available";
+
+    // Called when user clicks "View Equipment" button or on initialization
+    private void RefreshList() => Filter();
+
+    // Called on search form submission
+    // Added form status when nothing is entere;
+    private void Search()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+	        formStatus = "Please Add An Equipment Name to Search";
+            formStatusClass = "text-danger";
+        
+        }
+
+
+        Filter(); // Always call Filter after updating search
+
+    }
+
+    // Form Status
+    public string formStatus = "";
+    string formStatusClass = "text-danger"; // Red text in form status
+
+
+    // Filters the equipment list based on search and availability
+    private void Filter()
+    {
+        filteredEquipment = Equipment.AllEquipment
+            .Where(e =>
+                // Match name OR empty input
+                (string.IsNullOrWhiteSpace(searchTerm) || e.EquipmentName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
+                // Filter for available equipment if selected
+                (!IsAvailableSelected || e.DailyRentalCost > 0))
+            .ToList();
+    }
+
+    // Removes an equipment item and updates the JSON and UI
+    private void Remove(int equipmentID)
+    {
+        Equipment? equipmentToRemove = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == equipmentID);
+        InventoryManager.RemoveInventoryItem(equipmentID); // Remove from memory
+        DataLoader.SaveAll();                              // Save changes to JSON
+        Filter();                                           // Refresh displayed list
+        // Status message
+        formStatus = $"Equipment '{equipmentToRemove.EquipmentName}' (ID: {equipmentID}) removed.";
+        formStatusClass = "text-success";
+    }
+
+    // CLEAR SEARCH
+    private void ClearSearch()
+    {
+	    searchTerm = "";
+	    Filter(); // Re-applies availability filter logic
+        formStatus = "Search cleared.";
+        formStatusClass = "text-primary";
+    }
+
+
+    // Navigates to the Update Equipment page with selected ID
+    private void GoToUpdatePage(int equipmentID)
+    {
+        Nav.NavigateTo($"/updateequipment/{equipmentID}");
+    }
+
+    // Load data and display on page load
+    protected override void OnInitialized()
+    {
+        DataLoader.LoadAll(); // Load from JSON
+        Filter();             // Apply filter on load
+    }
 }
+

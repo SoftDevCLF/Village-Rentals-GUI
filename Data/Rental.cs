@@ -8,81 +8,50 @@ using System.Threading.Tasks;
 
 namespace VillageRentalsGUI.Data
 {
+    // Louie: Cintya, I kept your code. I just need a clean slate for me to work on. Then I will integrate whatever your reports code is.
     public class Rental
     {
-        public static List<Rental> AllRentals { get; } = new List<Rental>();
+        //List for Json loaded elements
+        public static List<Rental> rentalsList { get; set; } = new(); // Need to assign static
 
-        private int _rentalID;
-        private DateTime _currentDate = DateTime.Now;
-        private DateTime _rentalDate;
-        private DateTime _returnDate;
-        private double _totalCost;
-        private bool _isReturned;
+        // Variable Initialization
+        public int RentalID { get; set; }
 
-        public int RentalID { get => _rentalID; set => _rentalID = value; }
+        public double TotalCost { get; set; }
 
-        public DateTime CurrentDate { get => _currentDate; set => _currentDate = value; }
-        public Customer Customer { get; set; }
-        public List<Equipment> EquipmentList { get; set; }
-        public DateTime RentalDate { get => _rentalDate; set => _rentalDate = value; }
-        public DateTime ReturnDate { get => _returnDate; set => _returnDate = value; }
-        public double TotalCost { get => _totalCost; set => _totalCost = value; }
-        public bool IsReturned { get => _isReturned; set => _isReturned = value; }
+        public DateTime DateCreated { get; set; }
+        public DateTime RentalDate { get; set; }
+        public DateTime ReturnDate { get; set; }
 
-        public Rental(int rentalID, DateTime currentDate, Customer customer, List<Equipment> equipmentList, DateTime rentalDate, DateTime returnDate, bool isReturned = false)
+        // Customer and Equipment Variables
+        public string CustomerFirstName { get; set; }
+        public string CustomerLastName { get; set; }
+        public string EquipmentName { get; set; }
+
+        public int CustomerId { get; set; }
+
+        // Parameter-less constructor to make `new Rental()` work
+        public Rental() { }
+
+
+        public string formattedDate;
+
+        //string formattedDate = date1.ToString("dd MMM yyyy");
+
+        public Rental(int rentalId, DateTime dateCreated, DateTime rentalDate, DateTime returnDate, double totalCost, string customerFirstName, string customerLastName, string equipmentName, int customerId)
         {
-            RentalID = rentalID;
-            CurrentDate = currentDate;
-            Customer = customer;
-            EquipmentList = equipmentList;
+            RentalID = rentalId;
+            DateCreated = dateCreated;
             RentalDate = rentalDate;
             ReturnDate = returnDate;
-            IsReturned = isReturned;
+            TotalCost = totalCost;
 
-            customer.Rentals.Add(this);
-            AllRentals.Add(this);
+            CustomerFirstName = customerFirstName;
+            CustomerLastName = customerLastName;
+            EquipmentName = equipmentName;
+            CustomerId = customerId;
         }
 
-        public double CalculateTotalCost()
-        {
-            double totalCost = 0;
-            int rentalDays = (ReturnDate - RentalDate).Days;
-            if (rentalDays <= 0) rentalDays = 1; // Ensure at least 1-day cost
 
-            foreach (Equipment equipment in EquipmentList)
-            {
-                totalCost += equipment.DailyRentalCost * rentalDays;
-            }
-
-            if (Customer.Discount > 0)
-            {
-                totalCost -= (totalCost * Customer.Discount / 100);
-            }
-
-            return totalCost;
-        }
-
-        public override string ToString()
-        {
-            string rentalInfo = $"Rental ID: {RentalID}\nCustomer ID: {Customer.CustomerID}, Last Name: {Customer.LastName}\nRental Date: {RentalDate}, Return Date: {ReturnDate}\n";
-
-            int rentalDays = (ReturnDate - RentalDate).Days;
-            rentalDays = rentalDays > 0 ? rentalDays : 1;
-
-            foreach (var equipment in EquipmentList)
-            {
-                double itemCost = equipment.DailyRentalCost * rentalDays;
-                rentalInfo += $"Equipment ID: {equipment.EquipmentID}, Name: {equipment.EquipmentName}, Daily rental cost: ${equipment.DailyRentalCost:F2}, Cost for {rentalDays} days: ${itemCost:F2}\n";
-            }
-
-            if (Customer.Discount > 0)
-            {
-                rentalInfo += $"Discount: {Customer.Discount}%\n";
-            }
-
-            rentalInfo += $"Total Cost (after discount if applied): ${TotalCost:F2}\n";
-
-            return rentalInfo;
-        }
     }
 }

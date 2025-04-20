@@ -1,0 +1,35 @@
+[
+  {
+    "RentalID": 1000,
+    "TotalCost": 149.97,
+    "DateCreated": "2025-04-20T11:44:48.9727727-06:00",
+    "RentalDate": "2025-04-20T00:00:00-06:00",
+    "ReturnDate": "2025-04-23T00:00:00",
+    "CustomerFirstName": "John",
+    "CustomerLastName": "Doe",
+    "EquipmentName": "Chainsaw",
+    "CustomerId": 1001
+  },
+  {
+    "RentalID": 1001,
+    "TotalCost": 43.96,
+    "DateCreated": "2025-04-20T11:45:12.7773558-06:00",
+    "RentalDate": "2025-04-21T00:00:00",
+    "ReturnDate": "2025-04-25T00:00:00",
+    "CustomerFirstName": "Jane",
+    "CustomerLastName": "Smith",
+    "EquipmentName": "Brad Nailer",
+    "CustomerId": 1002
+  },
+  {
+    "RentalID": 1002,
+    "TotalCost": 107.928,
+    "DateCreated": "2025-04-20T12:48:44.8544277-06:00",
+    "RentalDate": "2025-05-01T00:00:00",
+    "ReturnDate": "2025-05-10T00:00:00",
+    "CustomerFirstName": "Michael",
+    "CustomerLastName": "Lee",
+    "EquipmentName": "Small Compressor",
+    "CustomerId": 1003
+  }
+]

@@ -2,11 +2,12 @@
 @using Data
 @inject NavigationManager Navigation
 
+
 <h1>Customer Management</h1>
 <hr>
 <p>Welcome to the Customer Management Page</p>
 <div>
-    <button @onclick="GoToAllCustomersPage" class="btn btn-secondary">See All Customers</button>
+    <button @onclick="GoToAllCustomersPage" class="btn btn-secondary">View All Customers</button>
     <button @onclick="GoToAddNewCustomerPage" class="btn btn-primary">Add New Customer</button>
 </div>
 
@@ -17,18 +18,26 @@
     @if (searchCriteria == "ID")
     {
         <div class="input-group mb-3">
-            <input class="border rounded-1 w-50 ps-3" placeholder="ID" @bind="customerID" />
+            <input class="border rounded-1 w-50 ps-3" placeholder="Enter Customer ID" @bind="customerID" />
             <button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
-		</div>
+            <!-- Clear Search-->
+            <span class="clear-link ms-2 align-items-center h-100">
+                <a href="#" class="link-secondary align-middle" @onclick="ClearSearch" @onclick:preventDefault="true">Clear</a>
+            </span>
+        </div>
     }
     else if (searchCriteria == "LastName")
     {
         <div class="input-group mb-3">
-            <input class="border rounded-1 w-50 ps-3" placeholder="Last Name" @bind="customerLastName" />
+            <input class="border rounded-1 w-50 ps-3" placeholder="Enter Customer Last Name" @bind="searchText" />
             <button class="btn btn-primary" @onclick="SearchCustomer">Search</button>
-		</div>
+            <!-- Clear Search-->
+            <span class="clear-link ms-2 align-items-center h-100">
+                <a href="#" class="link-secondary align-middle" @onclick="ClearSearch" @onclick:preventDefault="true">Clear</a>
+            </span>
+        </div>
     }
-
+    <p class="@formStatusClass">@formStatus</p>
 </form>
 
 <div class="container">
@@ -52,8 +61,10 @@
                 <thead>
                     <tr >
                         <th class="text-primary border-secondary">ID</th>
-                        <th class="text-primary border-secondary w-25">Customer Name</th>
+                        <th class="text-primary border-secondary w-20">Customer Name</th>
+                        <th class="text-primary border-secondary w-25">Email</th>
                         <th class="text-primary border-secondary">Status</th>
+                        <th class="text-primary border-secondary">Discount</th>
                         <th class="text-primary border-secondary">Actions</th>
                     </tr>
                 </thead>
@@ -65,14 +76,27 @@
                             <tr class ="align-middle">
                                 <td>@customer.CustomerID</td>
                                 <td>@customer.FirstName @customer.LastName</td>
-                                <td>@(customer.IsBanned ? "Banned" : "Active")</td>
+                                <td>@customer.Email</td>
+                                <td>
+                                    @if (customer.IsBanned)
+                                    {
+                                        <span class="text-danger">Banned</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Active</span>
+                                    }
+                                </td>
+                                <td>@($"{customer.Discount}%")</td>
                                 <td>
                                     <button class="btn btn-info" @onclick="() => GoToUpdateCustomerPage(customer.CustomerID)">Update</button>
+                                    <button class="btn btn-danger" @onclick="() => RemoveCustomer(customer.CustomerID)">Remove</button> @*Remove Function*@
+
                                 </td>
                             </tr>
                         }
                     }
-                    
+
                 </tbody>
             </table>
         </div>
@@ -80,11 +104,28 @@
 </div>
 
 @code {
-    int? customerID;
-    string customerLastName;
+    string customerID = "";
     string searchCriteria = "ID"; // Default selection
+    string formStatus = "";
+    string formStatusClass = "text-danger";
+    string searchText = "";
 
+
+    // All loaded customers
+    // List<Customer> allCustomers = new List<Customer>();
     List<Customer> matchingCustomers = new List<Customer>();
+
+
+    // Initialize JSon to load with Existing Customer Data. 
+    protected override void OnInitialized()
+    {
+	    DataLoader.LoadAll(); // Load data from JSON - Loads all data into Category.categoryList
+	    matchingCustomers = new List<Customer>(Customer.AllCustomers); // load initial state
+
+    }
+
+
+
 
     private bool IsIDSelected => searchCriteria == "ID";
     private bool IsLastNameSelected => searchCriteria == "LastName";
@@ -96,30 +137,136 @@
     {
         matchingCustomers.Clear();
 
-        if (searchCriteria == "ID" && customerID != 0)
+        // Changed this because int was now String.
+        // if (searchCriteria == "ID" && customerID != 0)
+        // {
+        //     matchingCustomers = allCustomers
+        //         .Where(c => c.CustomerID == customerID)
+        //         .ToList();
+        // }
+
+        if (searchCriteria == "ID" && !string.IsNullOrWhiteSpace(customerID))
         {
-            matchingCustomers = Customer.AllCustomers
-                .Where(c => c.CustomerID == customerID)
-                .ToList();
+            int id;
+            if (int.TryParse(customerID, out id))
+            {
+                foreach (Customer c in Customer.AllCustomers)
+                {
+                    if (c.CustomerID == id)
+                    {
+                        matchingCustomers.Add(c);
+                    }
+                }
+            }
+            else
+            {
+                formStatusClass = "text-danger";
+                formStatus = "Invalid ID format.";
+            }
         }
-        else if (searchCriteria == "LastName" && !string.IsNullOrWhiteSpace(customerLastName))
+        else if (searchCriteria == "LastName" && !string.IsNullOrWhiteSpace(searchText.Trim()))
         {
-            matchingCustomers = Customer.AllCustomers
-                .Where(c => c.LastName.Contains(customerLastName, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            // Clear search results and avoid duplicate
+            matchingCustomers = new List<Customer>();
+
+            // Loop in adding category to searchList
+            foreach (Customer c in Customer.AllCustomers)
+            {
+                if (c.LastName != null)
+                {
+                    string lowerLast = c.LastName.ToLower();
+                    string lowerSearch = searchText.ToLower();
+                    if (lowerLast.Contains(lowerSearch))
+                    {
+                        matchingCustomers.Add(c);
+                    }
+                }
+            }
         }
+
         else
         {
             Console.WriteLine("Please enter valid search input.");
         }
     }
 
+    // REMOVING FROM LIST
+    // Remove Category (To be migrated to the category GUI)
+    public void RemoveCustomer(int CustomerID)
+    {
+
+        Customer customerToRemove = null;
+
+        // Check if list is not empty
+        if (Customer.AllCustomers.Count > 0)
+        {
+            // Find the category by categoryID
+            foreach (Customer c in Customer.AllCustomers)
+            {
+                if (c.CustomerID == CustomerID)
+                {
+                    // Put it in an object
+                    customerToRemove = c;
+                    break;
+                }
+            }
+
+
+            // If there is an object inside do this.
+            if (customerToRemove != null)
+            {
+                Customer.AllCustomers.Remove(customerToRemove);
+
+                DataLoader.SaveAll(); // Save removed customer to the Customers.json
+
+			    formStatusClass = "text-success";
+			    formStatus = $"Customer {customerToRemove.FirstName} {customerToRemove.LastName} removed.";
+
+                matchingCustomers = new List<Customer>(Customer.AllCustomers);
+		    }
+		    // If the CATEGORIES are NOT FOUND
+		    else
+		    {
+			    formStatusClass = "text-danger";
+			    formStatus = "Customer not found.";
+		    }
+
+	    }
+
+        
+	    // If there are NO CATEGORIES.
+	    else
+
+	    {
+		    formStatusClass = "text-danger";
+		    formStatus = "No customer to remove.";
+	    }
+    }
+
+
+
+
+    // CLEAR SEARCH
+    private void ClearSearch()
+    {
+	    customerID = "";
+        searchText = "";
+	    matchingCustomers = new List<Customer>(Customer.AllCustomers);
+	    formStatus = "Search cleared.";
+	    formStatusClass = "text-primary";
+    }
+
+
+
+
+    // NAVIGATION 
+
     private void GoToAddNewCustomerPage()
     {
         Navigation.NavigateTo("/addcustomer");
     }
 
-    private void GoToUpdateCustomerPage(int? customerID)
+    private void GoToUpdateCustomerPage(int customerID)
     {
         Navigation.NavigateTo($"/updatecustomer/{customerID}");
     }

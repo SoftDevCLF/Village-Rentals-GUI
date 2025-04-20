@@ -1,0 +1,50 @@
+﻿@page "/viewequipment"                         
+@using VillageRentalsGUI.Data                 
+@inject NavigationManager Navigation           
+
+<h1>All Equipment</h1>
+<hr />
+
+<!-- Equipment list table -->
+<table class="table align-middle">
+    <thead>
+        <tr >
+            <th class="text-primary border-secondary">Equipment ID</th>
+            <th class="text-primary border-secondary">Name</th>
+            <th class="text-primary border-secondary">Daily Rate</th>
+            <th class="text-primary border-secondary">Category</th>
+            <th class="text-primary border-secondary">Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var equipment in Equipment.AllEquipment)  
+        {
+            <tr>
+                <td>@equipment.EquipmentID</td>                        <!-- Display ID -->
+                <td>@equipment.EquipmentName</td>                      <!-- Display name -->
+                <td>@equipment.DailyRentalCost.ToString("C")</td>     <!-- Display rate formatted as currency -->
+                <td>@equipment.Category.CategoryName</td>            <!-- Display category name -->
+                <td>@equipment.EquipmentDescription</td>              <!-- Display description -->
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Button to return to main inventory page -->
+<button class="btn btn-primary" @onclick="GoBackToInventory">Go Back to Inventory</button>
+
+@code {
+    private List<Equipment> equipmentList = new();  // Local list reference (not used in the markup)
+
+    // Load data on initialization
+    protected override void OnInitialized()
+    {
+        equipmentList = Equipment.AllEquipment;  // This line is currently not needed since we use Equipment.AllEquipment directly
+    }
+
+    // Navigate back to the inventory management page
+    private void GoBackToInventory()
+    {
+        Navigation.NavigateTo("/inventorygui");
+    }
+}

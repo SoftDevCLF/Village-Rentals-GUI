@@ -6,24 +6,37 @@ using System.Threading.Tasks;
 
 namespace VillageRentalsGUI.Data
 {
+    [Serializable]
+
     public class Category
     {
-        public static List<Category> AllCategories { get; } = new List<Category>();
-        public int CategoryID { get; set; }
+
+        // Global Category List
+        public static List<Category> categoryList { get; set; } = new(); // Need to assign static
+        //public List<Category> categoryList = new List<Category>();
+
+        public int CategoryId { get; set; }
+
         public string CategoryName { get; set; }
-        public List<Equipment> EquipmentList { get; set; } = new List<Equipment>();
 
-        public Category(int categoryID, string categoryName)
+        // Empty for Serialization
+        public Category () {}
+
+        public Category(int categoryId, string categoryName)
         {
-            CategoryID = categoryID;
+            CategoryId = categoryId;
             CategoryName = categoryName;
-
-            AllCategories.Add(this);
         }
 
+        // Provides a friendly string representation (e.g., "10, Power tools")
         public override string ToString()
         {
-            return $"{CategoryID}, {CategoryName}";
+            return $"Category ID: {CategoryId}\n" +
+                   $"Category Name: {CategoryName}";
+
         }
+
     }
+
+
 }

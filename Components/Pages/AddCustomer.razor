@@ -2,7 +2,7 @@
 @using VillageRentalsGUI.Data
 @inject NavigationManager Navigation
 
-<h3>Add New Customer</h3>
+<h1>Add New Customer</h1>
 <hr />
 <div class="container">
     <div class="row">
@@ -13,55 +13,75 @@
 
 
             <form @onsubmit="AddNewCustomer">
-                <div class="form-group row mb-3">
-                    <label class="col-sm-3 col-form-label me-5">First Name</label>
-                    <div class="col-sm-7">
-                        <input @bind="firstName" class="form-control ms-5" />
-                    </div>
-                </div>
+	            <div class="form-group row mb-3">
+		            <label class="col-sm-3 col-form-label me-5">First Name</label>
+		            <div class="col-sm-7">
+			            <input @bind="firstName" class="form-control ms-5" />
+		            </div>
+	            </div>
 
-                <div class="form-group row mb-3">
-                    <label class="col-sm-3 col-form-label me-5">Last Name<i class="text-danger">*</i></label>
-                    <div class="col-sm-7">
-                        <input @bind="lastName" class="form-control ms-5" />
-                    </div>
-                </div>
+	            <div class="form-group row mb-3">
+		            <label class="col-sm-3 col-form-label me-5">Last Name<i class="text-danger">*</i></label>
+		            <div class="col-sm-7">
+			            <input @bind="lastName" class="form-control ms-5" />
+		            </div>
+	            </div>
 
-                <div class="form-group row mb-3">
-                    <label class="col-sm-3 col-form-label me-5">Phone Number</label>
-                    <div class="col-sm-7">
-                        <input @bind="FormattedPhoneNumber" type="tel" class="form-control ms-5" />
-                    </div>
-                </div>
+	            <div class="form-group row mb-3">
+		            <label class="col-sm-3 col-form-label me-5">Phone Number</label>
+		            <div class="col-sm-7">
+			            <input @bind="FormattedPhoneNumber" type="tel" class="form-control ms-5" />
+		            </div>
+	            </div>
 
-                <div class="form-group row mb-3">
-                    <label class="col-sm-3 col-form-label me-5">Email<i class="text-danger">*</i></label>
-                    <div class="col-sm-7">
-                        <input @bind="email" type="email" class="form-control ms-5" />
-                    </div>
-                </div>
+	            <div class="form-group row mb-3">
+		            <label class="col-sm-3 col-form-label me-5">Email<i class="text-danger">*</i></label>
+		            <div class="col-sm-7">
+			            <input @bind="email" type="email" class="form-control ms-5" />
+		            </div>
+	            </div>
 
-                <div class="form-group row mb-3">
-                    <label class="col-sm-3 col-form-label me-5">Discount</label>
-                    <div class="col-sm-7">
-                        <input type="number" @bind="discount" class="form-control ms-5" />
-                    </div>
-                </div>
+	            <div class="form-group row mb-3">
+		            <label class="col-sm-3 col-form-label me-5">Discount</label>
+		            <div class="col-sm-7">
+			            <input type="number" @bind="discount" class="form-control ms-5" />
+		            </div>
+	            </div>
 
-                <div class="form-group row mb-3">
-                    <label class="col-sm-3 col-form-label me-5">Customer Status</label>
-                    <div class="col-sm-4">
-                        <select class="form-select ms-5" @bind="bannedString">
-                            <option value="false">Active</option>
-                            <option value="true">Banned</option>
-                        </select>
-                    </div>
-                </div>
+	            <div class="form-group row mb-3">
+		            <label class="col-sm-3 col-form-label me-5">Customer Status</label>
+		            <div class="col-sm-4">
+			            <select class="form-select ms-5" @bind="bannedString">
+				            <option value="false">Active</option>
+				            <option value="true">Banned</option>
+			            </select>
+		            </div>
+	            </div>
 
-                <div>
-                    <button class="btn btn-primary mb-3 me-3" type="submit">Add Customer</button>
-                </div>
+	            @* <div> *@
+	            @*     <button class="btn btn-primary mb-3 me-3" type="submit">Add Customer</button> *@
+	            @* </div> *@
+
+	            <!-- Conditional button block -->
+	            <div class="text-start mb-2">
+		            @if (!isSubmitted)
+		            {
+			            <!-- Button to submit the form -->
+			            <button class="btn btn-primary mb-3 me-3" type="submit">Add Customer</button>
+		            }
+		            else
+		            {
+			            <!-- Buttons to reset or go back after submission -->
+			            <button class="btn btn-success me-2" @onclick="ResetForm">Add Another Customer</button>
+                        <button class="btn btn-secondary" @onclick="GoToCustomerPage">Go Back to Customer</button>
+		            }
+
+
+	            </div>
             </form>
+			
+
+            <p class="@formStatusClass">@formStatus</p>
 
         </div>
 
@@ -76,6 +96,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr>
+                            <td class="border rounded-3 mt-3 py-2 px-3">Customer ID: @customer?.CustomerID</td>
+                        </tr>
                         <tr>
                             <td class="border rounded-3 mt-3 py-2 px-3">First Name: @customer?.FirstName</td>
                         </tr>
@@ -96,11 +119,9 @@
                         </tr>
                     </tbody>
                 </table>
-
-				<div>
-                    <button class="btn btn-primary mt-6" @onclick="GoToCustomerPage">Go Back to Customer Management</button>
-				</div>
             }
+			
+
         </div>
 
     </div>
@@ -109,7 +130,8 @@
 
 
 
-
+<!-- Customer All Customers Test Table -->
+@*
 @if (Customer.AllCustomers.Count > 0)
 {
     <h4>All Customers:</h4>
@@ -120,30 +142,78 @@
         }
     </ul>
 }
+*@
+
 
 @code {
-    int? customerID;
+    int customerID;
     string firstName, lastName, phoneNumber, email;
     double discount;
     string bannedString;
-    
+
     bool newCustomer = false;
+
+    // Status Changes
+    bool isSubmitted = false;
+    string formStatus = "";
+    string formStatusClass = "text-danger";
+
+    // Initialize JSon to load with Existing Customer Data. 
+    protected override void OnInitialized()
+    {
+        DataLoader.LoadAll(); // Load data from JSON - Loads all data into Category.categoryList
+    }
+
+
+    // Initialize allCustomers list
     Customer customer = null; // Initialize customer to null
+    // List<Customer> allCustomers = new List<Customer>();
+    List<Customer> allCustomers => Customer.AllCustomers; // Get the global list, get and return it.
+
+
+
 
     public void AddNewCustomer()
     {
         if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(phoneNumber) || string.IsNullOrEmpty(email))
         {
-            Console.WriteLine("Error: All fields are required!");
+            formStatus = "Error: All fields are required!";
             return;
         }
 
-        customerID = Customer.AllCustomers.Max(c => c.CustomerID) + 1;
+        // Status change to Submitted
+		isSubmitted = true;
+
+        // Replaced this with this.
+        // customerID = allCustomers.Max(c => c.CustomerID) + 1;
+
+        // Assigning ID
+        if (allCustomers.Count > 0)
+        {
+            int maxId = 0;
+            foreach (Customer c in allCustomers)
+            {
+                if (c.CustomerID > maxId)
+                {
+                    maxId = c.CustomerID;
+                }
+            }
+            customerID = maxId + 1;
+        }
+        else
+        {
+            customerID = 1001; // starting ID
+        }
+
 
         bool banned = bannedString == "true";
 
         // The constructor already adds the customer to AllCustomers
         customer = new Customer(customerID, lastName, firstName, email, phoneNumber, banned, discount);
+
+        allCustomers.Add(customer);
+
+        DataLoader.SaveAll(); // Save to JSON file
 
         newCustomer = true;
 
@@ -181,6 +251,26 @@
             }
         }
     }
+
+    // Clears the form to allow adding another item
+    private void ResetForm()
+    {
+	    customerID = 0;
+	    firstName = "";
+	    lastName = "";
+	    phoneNumber = "";
+	    email = "";
+	    discount = 0;
+	    bannedString = "false"; // Default to "Active"
+
+	    customer = null;
+	    newCustomer = false;
+	    isSubmitted = false;
+
+	    formStatus = "";
+	    formStatusClass = "text-danger";
+    }
+
     private void GoToCustomerPage()
     {
         Navigation.NavigateTo("/customergui");

@@ -1,0 +1,140 @@
+﻿@page "/updateequipment/{EquipmentID:int}"  
+@using VillageRentalsGUI.Data
+@inject NavigationManager Nav  
+
+<h1 class="mb-4">Update Equipment</h1>
+<hr/>
+
+<div class="row">
+    <div class="col-md-6">
+        <p><strong>Enter New Equipment Details:</strong><br />
+            <span class="text-danger">*</span> Required</p>
+
+        <!-- Equipment Name input -->
+        <div class="mb-3">
+            <label class="form-label">Equipment Name <span class="text-danger">*</span></label>
+            <input class="form-control" @bind="equipmentName" />
+        </div>
+
+        <!-- Daily Rate input -->
+        <div class="mb-3">
+            <label class="form-label">Daily Rate</label>
+            <input class="form-control" type="number" step="0.01" @bind="dailyRate" />
+        </div>
+
+        <!-- Description input -->
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" @bind="description"></textarea>
+        </div>
+
+        <!-- Category dropdown -->
+        <div class="mb-3">
+            <label class="form-label">Category <span class="text-danger">*</span></label>
+            <select class="form-select" @bind="selectedCategoryId">
+                <option disabled value="">Select Category</option>
+                @foreach (Category category in Category.categoryList)
+                { 
+	                @* <!-- Show both ID and name for clarity -->  *@
+	                <option value="@category.CategoryId">@($"{category.CategoryId} - {category.CategoryName}")</option>
+
+                }
+            </select>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="d-flex gap-2">
+            @if (!isUpdated)
+            {
+                <!-- Buttons before saving -->
+                <button class="btn btn-primary" @onclick="UpdateEquipments">Save Changes</button>
+                <button class="btn btn-danger" @onclick="Cancel">Cancel</button>
+            }
+            else
+            {
+                <!-- Button after save -->
+                <button class="btn btn-success" @onclick="GoBack">Back to Inventory</button>
+            }
+        </div>
+    </div>
+
+    <!-- Show confirmation and details after update -->
+    @if (isUpdated)
+    {
+        <div class="col-md-6">
+            <div class="alert alert-success">Equipment Updated!</div>
+            <table class="table w-auto">
+                <tr><td><strong>Equipment ID:</strong></td><td>@equipment?.EquipmentID</td></tr>
+                <tr><td><strong>Equipment Name:</strong></td><td>@equipment?.EquipmentName</td></tr>
+                <tr><td><strong>Daily Rate:</strong></td><td>@equipment?.DailyRentalCost</td></tr>
+                <tr><td><strong>Category:</strong></td><td>@equipment?.Category.CategoryName</td></tr>
+                <tr><td><strong>Category ID:</strong></td><td>@equipment?.Category.CategoryId</td></tr> 
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int EquipmentID { get; set; } // Receives EquipmentID from URL
+
+    private Equipment? equipment;                // Currently loaded equipment
+    private string equipmentName = "";           // Updated equipment name
+    private double dailyRate;                    // Updated daily rate
+    private string description = "";             // Updated description
+    private int selectedCategoryId;              // Selected category ID
+    private List<Category> categories = Category.categoryList;  // Available categories list
+
+    private bool isUpdated = false;              // Flag to indicate if update succeeded
+
+    // Initialize the form with existing equipment data
+    protected override void OnInitialized()
+    {
+        DataLoader.LoadAll(); // Load data from JSON
+
+        // Find the equipment by its ID
+        equipment = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == EquipmentID);
+
+        if (equipment != null)
+        {
+            // Prepopulate form fields with current values
+            equipmentName = equipment.EquipmentName;
+            dailyRate = equipment.DailyRentalCost;
+            description = equipment.EquipmentDescription;
+            selectedCategoryId = equipment.Category?.CategoryId ?? 0;
+        }
+    }
+
+    // Updates the equipment object and saves to file
+    private void UpdateEquipments()
+    {
+        if (equipment == null)
+            return;
+
+        // Update values
+        equipment.EquipmentName = equipmentName;
+        equipment.DailyRentalCost = dailyRate;
+        equipment.EquipmentDescription = description;
+
+        // Find and assign updated category
+        Category category = categories.FirstOrDefault(c => c.CategoryId == selectedCategoryId); 
+        equipment.Category = category;
+
+        DataLoader.SaveAll(); // Save updated data to JSON
+
+        isUpdated = true;     // Trigger confirmation display
+    }
+
+    // Cancel the update and return to inventory
+    private void Cancel()
+    {
+        Nav.NavigateTo("/inventorygui");
+    }
+
+    // Navigate back to inventory
+    private void GoBack()
+    {
+        Nav.NavigateTo("/inventorygui");
+    }
+}
+
+

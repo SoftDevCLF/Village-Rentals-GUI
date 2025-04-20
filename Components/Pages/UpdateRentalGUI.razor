@@ -1,0 +1,495 @@
+﻿@page "/updaterental"
+@page "/updaterental/{RentalId:int}"  
+<!-- Route parameter-->
+@using VillageRentalsGUI.Data
+@inject NavigationManager Navigation
+
+<h1>Update Rental</h1>
+<hr />
+<div class="container">
+	<div class="row">
+		<!-- Form Section -->
+		<div class="col col-md-6">
+			Enter new equipment details:
+			<p class="text-danger">* <i class="text-dark">Required</i></p>
+
+			<!-- Search customer by ID or name -->
+
+			<form @onsubmit="SubmitRentalForm" @onsubmit:preventDefault="true"> <!--Prevent form from submitting via default browser behavior-->
+
+				@*Drop downs for Category and Equipment*@
+
+				@*NEED TO ADD LISTS IN EACH OF THE OPTION - should we do a class?*@
+
+				<!-- CUSTOMER Dropdown -->
+				<div class="form-group row mb-3">
+					<label class="col-sm-4 col-form-label me-3" for="Customer">Customer<i class="text-danger">*</i></label>
+					<div class="col-sm-7">
+						<select class="form-select ms-5" 
+								@bind="selectedCustomerId"
+								@bind:after="() => UpdateSelectedCustomer()"> <!-- onchange to set selectedCustomer -->
+							<option value="0">-- Select Customer --</option>
+							@foreach (Customer c in Customer.AllCustomers.Where(c => !c.IsBanned))
+							{
+									<option value="@c.CustomerID">@c.CustomerID - @c.FirstName @c.LastName</option>
+							}
+						</select>
+					</div>
+				</div>
+
+				<!-- CATEGORY Dropdown -->
+				<div class="form-group row mb-3">
+					<label class="col-sm-4 col-form-label me-3" for="Category">Category<i class="text-danger">*</i></label>
+					<div class="col-sm-7">
+						<select class="form-select ms-5"
+								value="@selectedCategoryId"
+								@onchange="OnCategoryChangedManual">
+							<option value="0">-- Select Category --</option>
+							@foreach (var category in Category.categoryList)
+							{
+									<option value="@category.CategoryId">@category.CategoryId - @category.CategoryName</option>
+							}
+						</select>
+					</div>
+				</div>
+
+				<!-- EQUIPMENT Dropdown (Filtered by Category) -->
+				<div class="form-group row mb-3">
+					<label class="col-sm-4 col-form-label me-3" for="Equipment">Equipment<i class="text-danger">*</i></label>
+					<div class="col-sm-7">
+						<select class="form-select ms-5"
+						        @bind="selectedEquipmentId"
+						        @bind:after="UpdateSelectedEquipment"
+						        disabled="@(!filteredEquipmentList.Any())">
+							<option value="0">-- Select Equipment --</option>
+							@foreach (Equipment e in filteredEquipmentList)
+							{
+									<option value="@e.EquipmentID">@e.EquipmentID - @e.EquipmentName</option>
+							}
+						</select>
+						<small class="form-text text-muted ms-5">Select Category first</small>
+
+					</div>
+
+				</div>
+
+
+				@* RENTAL AND RETURN DATE - Input Section for the Form*@
+
+				<div class="form-group row mb-3">
+					<label class="col-sm-4 col-form-label me-3">Rental Start Date<i class="text-danger">*</i></label>
+					<div class="col-sm-7">
+						<input class="form-control ms-5"
+							   type="date"
+							   value="@newRental.RentalDate.ToString("yyyy-MM-dd")"
+							   @onchange="OnStartDateChanged" />
+						<small class="form-text text-muted ms-5">Date format is MM/DD/YYYY</small>
+
+					</div>
+				</div>
+
+				<div class="form-group row mb-3">
+					<label class="col-sm-4 col-form-label me-3">Return Date<i class="text-danger">*</i></label>
+					<div class="col-sm-7">
+						<input class="form-control ms-5"
+							   type="date"
+							   value="@newRental.ReturnDate.ToString("yyyy-MM-dd")"
+							   @onchange="OnReturnDateChanged" />
+						<small class="form-text text-muted ms-3">Date format is MM/DD/YYYY</small>
+
+						</div>
+				</div>
+
+
+				@*COST HERE FOR THE RENTAL*@
+				<div class="form-group row mb-3">
+					@*This part needs to be an estimate calculated based on the entries.*@
+					<label class="col-sm-4 col-form-label me-3">Cost<i class="text-danger">*</i></label>
+					<div class="col-sm-7">
+						<input type="tel" class="form-control ms-5" placeholder="Estimated cost here" value="@newRental.TotalCost.ToString("C")" aria-label="Disabled input example" disabled readonly /> @* Disabled Input*@
+						<small id="emailHelp" class="form-text text-muted ms-5">Total cost will update when you input date</small>
+						<small class="form-text text-muted ms-5">
+							@(selectedCustomer != null && selectedCustomer.Discount > 0
+												? $"Customer discount: {selectedCustomer.Discount}% applied"
+												: "No discount applied.")
+						</small>
+					</div>
+				</div>
+
+				@* <div> *@
+				@*     <button class="btn btn-primary mb-3 me-3" type="submit">Add Equipment</button> *@
+				@* </div> *@
+
+
+				<!-- Conditional button block -->
+				<div class="text-start mb-2">
+					@if (!isSubmitted)
+					{
+						<!-- SAVE CHANGES button -->
+						<button class="btn btn-primary mb-3 me-3" type="submit">Save Changes</button>
+
+						<!-- CANCEL button -->
+						<button class="btn btn-outline-secondary mb-3" @onclick="GoToRentalsPage">Cancel</button>
+					}
+					else
+					{
+						<!-- AFTER UPDATE ACTIONS -->
+						<button class="btn btn-success me-2" @onclick="GoToRentalsPage">Back to Rentals</button>
+					}
+				</div>
+
+			</form>
+			<p class="@formStatusClass">@formStatus</p>
+
+		</div>
+
+		<!-- SIDEBAR - RENTAL SUCCESS -->
+		<div class="col col-md-3 ms-5">
+			@if (successRentalId > 0)
+			{
+					<table class="table">
+						<thead>
+						<tr>
+							<th class="p-3 bg-success bg-opacity-50 rounded-1 text-white fs-5">
+								Rental Added!
+							</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								<strong>Rental ID:</strong> @successRentalId
+							</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								<strong>Customer:</strong> @newRental.CustomerFirstName @newRental.CustomerLastName
+							</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								<strong>Equipment:</strong> @newRental.EquipmentName
+							</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								<strong>Start Date:</strong> @newRental.RentalDate.ToString("MM/dd/yyyy")
+							</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								<strong>Return Date:</strong> @newRental.ReturnDate.ToString("MM/dd/yyyy")
+							</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								@* <strong>Days:</strong> @(newRental.ReturnDate - newRental.RentalDate).Days *@
+								<strong>Days:</strong> @($"{(newRental.ReturnDate - newRental.RentalDate).Days} days")
+
+							</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								<strong>Daily Rate:</strong> @selectedEquipment?.DailyRentalCost.ToString("C")
+							</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								<strong>Discount:</strong> @(selectedCustomer?.Discount ?? 0)% 
+							</td>
+						</tr>
+						<tr>
+							<td class="border rounded-3 py-2 px-3">
+								<strong>Total Cost:</strong> @newRental.TotalCost.ToString("C")
+							</td>
+						</tr>
+						</tbody>
+					</table>
+			}
+		</div>
+
+
+
+	</div>
+
+</div>
+
+
+
+@code {
+
+	private Rental newRental = new Rental();
+	private List<Rental> rentals => Rental.rentalsList; // Static property for the rentalsList
+
+	// support for receiving the Rental ID
+	[Parameter] 
+	public int RentalId { get; set; }
+
+	// Dropdown list data
+	public List<Customer> customers = new();
+	public List<Equipment> equipmentList = new();
+	public List<Category> categories = new();
+
+	// Selected dropdown values
+	private int selectedCustomerId;
+	private Customer selectedCustomer;
+
+	private int selectedEquipmentId;
+	private Equipment selectedEquipment;
+
+	private int selectedCategoryId; // CATEGORY dropdown binding
+	private List<Equipment> filteredEquipmentList = new(); // LIST that changes based on selected category
+
+	// State tracking
+	public int successRentalId = 0;
+	public string formStatus = "";
+	public string formStatusClass = "text-danger";
+	public bool isSubmitted = false;
+
+
+	// Initialization - Populate lists from static sources and Load Existing Rental
+	protected override void OnInitialized()
+	{
+		DataLoader.LoadAll();
+
+		customers = Customer.AllCustomers.Where(c => !c.IsBanned).ToList();
+		equipmentList = Equipment.AllEquipment;
+		categories = Category.categoryList;
+		filteredEquipmentList = new();
+
+		// Load rental by ID
+		var existing = Rental.rentalsList.FirstOrDefault(r => r.RentalID == RentalId);
+		if (existing != null)
+		{
+			// Copy data into the working rental object
+			newRental = new Rental
+			{
+				RentalID = existing.RentalID,
+				CustomerId = existing.CustomerId,
+				CustomerFirstName = existing.CustomerFirstName,
+				CustomerLastName = existing.CustomerLastName,
+				EquipmentName = existing.EquipmentName,
+				RentalDate = existing.RentalDate,
+				ReturnDate = existing.ReturnDate,
+				TotalCost = existing.TotalCost,
+				DateCreated = existing.DateCreated
+			};
+
+			// Preselect Customer
+			selectedCustomerId = newRental.CustomerId;
+			selectedCustomer = customers.FirstOrDefault(c => c.CustomerID == selectedCustomerId);
+
+			// Preselect Equipment + Category
+			selectedEquipment = equipmentList.FirstOrDefault(eq => eq.EquipmentName == newRental.EquipmentName);
+			selectedEquipmentId = selectedEquipment?.EquipmentID ?? 0;
+			selectedCategoryId = selectedEquipment?.CategoryId ?? 0;
+
+			// Populate filtered list for dropdown
+			OnCategoryChanged();
+		}
+
+		RecalculateCost();
+	}
+
+
+	// Event Helper - helper method for when Customer dropdown changes
+	private void UpdateSelectedCustomer()
+	{
+		selectedCustomer = customers.FirstOrDefault(c => c.CustomerID == selectedCustomerId);
+	}
+
+	private void OnCategoryChangedManual(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int id))
+		{
+			selectedCategoryId = id;
+			OnCategoryChanged();
+		}
+	}
+
+
+	// Event Helper - On Category Change Event Change Args - When Category is picked, Equipment is filtered automatically.
+	private void OnCategoryChanged()
+	{
+		if (selectedCategoryId <= 0)
+		{
+			filteredEquipmentList.Clear();
+			return;
+		}
+
+		filteredEquipmentList = Equipment.AllEquipment
+			.Where(eq => eq.CategoryId == selectedCategoryId)
+			.ToList();
+
+		// Only reset if current selection no longer valid
+		if (!filteredEquipmentList.Any(eq => eq.EquipmentID == selectedEquipmentId))
+		{
+			selectedEquipmentId = 0;
+			selectedEquipment = null;
+		}
+	}
+
+	// Event Helper - Equipment Change
+	private void OnEquipmentChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int newId))
+		{
+			selectedEquipmentId = newId;
+			selectedEquipment = filteredEquipmentList.FirstOrDefault(eq => eq.EquipmentID == newId);
+			RecalculateCost();
+		}
+	}
+
+
+	// Event Helper - Ensures selectedEquipment is set from dropdown and updates cost
+	private void UpdateSelectedEquipment()
+	{
+		selectedEquipment = filteredEquipmentList.FirstOrDefault(eq => eq.EquipmentID == selectedEquipmentId);
+		RecalculateCost();
+	}
+
+
+	// Event Helper - Start Date and End Date Change TO RECALCULATE COST AGAIN
+	private void OnStartDateChanged(ChangeEventArgs e)
+	{
+		if (DateTime.TryParse(e.Value?.ToString(), out var parsed))
+		{
+			newRental.RentalDate = parsed;
+			RecalculateCost();
+		}
+	}
+
+	private void OnReturnDateChanged(ChangeEventArgs e)
+	{
+		if (DateTime.TryParse(e.Value?.ToString(), out var parsed))
+		{
+			newRental.ReturnDate = parsed;
+			RecalculateCost();
+		}
+	}
+
+
+	// Live Calculation on Input Change
+	private void RecalculateCost()
+	{
+		if (selectedEquipment != null &&
+			selectedCustomer != null &&
+			newRental.RentalDate != default &&
+			newRental.ReturnDate > newRental.RentalDate)
+		{
+			int days = (newRental.ReturnDate - newRental.RentalDate).Days;
+			double baseCost = days * selectedEquipment.DailyRentalCost;
+			double discountAmount = baseCost * (selectedCustomer.Discount / 100.0);
+			newRental.TotalCost = baseCost - discountAmount;
+		}
+		else
+		{
+			newRental.TotalCost = 0;
+		}
+	}
+
+	// SUBRENTALFORM - Form submit handler
+	public void SubmitRentalForm()
+	{
+		// Check required fields
+		if (selectedCustomer == null || selectedEquipment == null ||
+			newRental.RentalDate == default || newRental.ReturnDate == default ||
+			newRental.ReturnDate <= newRental.RentalDate)
+		{
+			formStatus = "Please fill out all fields correctly.";
+			formStatusClass = "text-danger";
+			isSubmitted = false;
+			return;
+		}
+
+		selectedCustomer = Customer.AllCustomers.FirstOrDefault(c => c.CustomerID == selectedCustomerId);
+		selectedEquipment = Equipment.AllEquipment.FirstOrDefault(e => e.EquipmentID == selectedEquipmentId);
+
+
+		// Assign selected customer/equipment details to rental
+		newRental.CustomerId = selectedCustomer.CustomerID;
+		newRental.CustomerFirstName = selectedCustomer.FirstName;
+		newRental.CustomerLastName = selectedCustomer.LastName;
+		newRental.EquipmentName = selectedEquipment.EquipmentName;
+
+		// Calculate estimated cost
+		int days = (newRental.ReturnDate - newRental.RentalDate).Days;
+		newRental.TotalCost = days * selectedEquipment.DailyRentalCost;
+
+
+		RecalculateCost();
+		UpdateRental();
+		isSubmitted = true;
+	}
+
+	// UPDATE RENTAL FUNCTION - Similar to add rental logic
+	public void UpdateRental()
+	{
+		var existing = rentals.FirstOrDefault(r => r.RentalID == newRental.RentalID);
+		if (existing != null)
+		{
+			existing.CustomerId = selectedCustomer.CustomerID;
+			existing.CustomerFirstName = selectedCustomer.FirstName;
+			existing.CustomerLastName = selectedCustomer.LastName;
+			existing.EquipmentName = selectedEquipment.EquipmentName;
+			existing.RentalDate = newRental.RentalDate;
+			existing.ReturnDate = newRental.ReturnDate;
+			existing.DateCreated = DateTime.Now;
+
+			int days = (newRental.ReturnDate - newRental.RentalDate).Days;
+			double baseCost = days * selectedEquipment.DailyRentalCost;
+			double discountAmount = baseCost * (selectedCustomer.Discount / 100.0);
+			existing.TotalCost = baseCost - discountAmount;
+
+			DataLoader.SaveAll();
+			formStatus = "Rental updated!";
+			formStatusClass = "text-success";
+			successRentalId = existing.RentalID;
+		}
+		else
+		{
+			formStatus = "Rental not found.";
+			formStatusClass = "text-danger";
+		}
+	}
+
+	// Resets form for new entry
+	public void ResetForm()
+	{
+		newRental = new Rental();
+		selectedCustomerId = 0;
+		selectedCustomer = null;
+
+		selectedEquipmentId = 0;
+		selectedEquipment = null;
+
+		selectedCategoryId = 0;
+		filteredEquipmentList.Clear();
+
+		isSubmitted = false;
+		formStatus = "";
+		formStatusClass = "text-danger";
+		successRentalId = 0;
+
+		newRental.RentalDate = DateTime.Today;
+		newRental.ReturnDate = DateTime.Today.AddDays(1);
+
+
+		StateHasChanged(); // To force UI refresh
+	}
+
+
+
+	// Navigation Methods
+	private void GoToRentalsPage()
+	{
+		Navigation.NavigateTo("/rentalsgui");
+	}
+
+	private void GoToAddRentalPage()
+	{
+		Navigation.NavigateTo("/addrental");
+	}
+
+
+}

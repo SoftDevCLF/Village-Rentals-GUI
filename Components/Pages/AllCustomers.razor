@@ -1,49 +1,71 @@
 ﻿@page "/allcustomers"
-@using Data
+@using VillageRentalsGUI.Data
 @inject NavigationManager Navigation
 
 <h1>All Customers</h1>
-<hr/>
+<hr />
 
-@if (Customer.AllCustomers.Count > 0)
+<div class="mb-4">
+	<button class="btn btn-primary mt-4" @onclick="GoToCustomerPage">Go Back to Customer Management</button>
+</div>
+
+@if (allCustomers.Count > 0)
 {
-    <table class="table">
+	<table class="table">
 		<thead>
-			<tr>
-				<th>Customer ID</th>
-				<th>First Name</th>
-				<th>Last Name</th>
-				<th>Email</th>
-				<th>Phone Number</th>
-				<th>Customer Status</th>
-				<th>Discoount</th>
-			</tr>
+		<tr class="text-primary">
+			<th>Customer ID</th>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>Email</th>
+			<th>Phone Number</th>
+			<th>Customer Status</th>
+			<th>Discount</th>
+		</tr>
 		</thead>
 		<tbody>
-			@foreach (var customer in Customer.AllCustomers)
-			{
-				<tr>
-					<td>@customer.CustomerID</td>
-					<td>@customer.FirstName</td>
-					<td>@customer.LastName</td>
-					<td>@customer.Email</td>
-					<td>@customer.PhoneNumber</td>
-					<td>@(customer.IsBanned ? "Banned" : "Active")</td>
-					<td>@customer.Discount</td>
-				</tr>
-			}
+		@foreach (var customer in allCustomers)
+		{
+			<tr class="table-hover">
+				<td>@customer.CustomerID</td>
+				<td>@customer.FirstName</td>
+				<td>@customer.LastName</td>
+				<td>@customer.Email</td>
+				<td>@customer.PhoneNumber</td>
+				<td>
+					@if (customer.IsBanned)
+					{
+						<span class="text-danger">Banned</span>
+					}
+					else
+					{
+						<span>Active</span>
+					}
+				</td>
+				<td>@($"{customer.Discount}%")</td>
+			</tr>
+		}
 		</tbody>
-        
-        
-    </table>
+	</table>
 }
-
-<div>
-	<button class="btn btn-primary mt-6" @onclick="GoToCustomerPage">Go Back to Customer Management</button>
-</div>
+else
+{
+	<p>No customers found.</p>
+}
 
 
 @code {
+
+	// Initialize Lists
+	// List<Customer> allCustomers = new List<Customer>();
+	List<Customer> allCustomers => Customer.AllCustomers; // Get the global list, get and return it.
+
+	// Initialize GLOBAL JSON List
+	protected override void OnInitialized()
+	{
+		DataLoader.LoadAll(); // Load from disk into global list
+	}
+
 	private void GoToCustomerPage()
 	{
 		Navigation.NavigateTo("/customergui");

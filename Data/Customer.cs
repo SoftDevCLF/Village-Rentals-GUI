@@ -9,24 +9,24 @@ namespace VillageRentalsGUI.Data
 {
     public class Customer
     {
-        public static List<Customer> AllCustomers = new List<Customer>();
+        public static List<Customer> AllCustomers { get; set; } = new(); // Need to assign static
+
+        //public static List<Customer> AllCustomers = new List<Customer>();
         
-        public int? CustomerID { get; set; }
+        public int CustomerID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public bool IsBanned { get; set; }  // This is a public auto-property now
         public double Discount { get; set; }
-        public List<Rental> Rentals { get; set; } = new List<Rental>();
 
-        static Customer()
-        {
-            new Customer(1001, "Doe", "John", "jd@sample.net", "(555)555-1212");
-            new Customer(1002, "Smith", "Jane", "js@live.com", "(555)555-3434");
-            new Customer(1003, "Lee", "Michael", "ml@sample.net", "(555)555-5656");
-        }
-        public Customer(int? customerID, string lastName, string firstName, string email, string phoneNumber, bool isBanned=false, double discount=0, bool autoAdd = true)
+        //public List<Rental> Rentals { get; set; } = new(); Removing this because Rental will live on Rentals page.
+
+
+        public Customer() { } // Required for JSON serialization
+
+        public Customer(int customerID, string lastName, string firstName, string email, string phoneNumber, bool isBanned=false, double discount=0, bool autoAdd = true)
         {
             CustomerID = customerID;
             LastName = lastName;
@@ -34,15 +34,15 @@ namespace VillageRentalsGUI.Data
             PhoneNumber = phoneNumber;
             Email = email;
             IsBanned = isBanned;  
-            Discount = discount;  
+            Discount = discount;
 
-            if (autoAdd)
-                AllCustomers.Add(this);  // Adds customer to the AllCustomers list
+            // Louie: Removing both the static constructor and AllCustomers. I'll use the razor page and serialize from there.
+            //if (autoAdd)
+            //    AllCustomers.Add(this);  // Adds customer to the AllCustomers list
         }
 
-        
-        
-        
+
+
         public override string ToString() 
         {
             string status = "";
